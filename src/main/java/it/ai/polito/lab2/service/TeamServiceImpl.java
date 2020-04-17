@@ -4,12 +4,15 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.ai.polito.lab2.dtos.CourseDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
+import it.ai.polito.lab2.dtos.TeamDTO;
 import it.ai.polito.lab2.entities.Course;
 import it.ai.polito.lab2.entities.Student;
 import it.ai.polito.lab2.repositories.CourseRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
+import it.ai.polito.lab2.repositories.TeamRepository;
 import it.ai.polito.lab2.service.exceptions.CourseNotFoundException;
 import it.ai.polito.lab2.service.exceptions.StudentNotFoundException;
+import it.ai.polito.lab2.service.exceptions.TeamNotFoundException;
 import it.ai.polito.lab2.service.exceptions.TeamServiceException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,8 @@ public class TeamServiceImpl implements TeamService {
     private StudentRepository studentRepository;
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private TeamRepository teamRepository;
     @Autowired
     private ModelMapper mapper;
 
@@ -175,6 +180,28 @@ public class TeamServiceImpl implements TeamService {
             return s.getCourses().stream().map(c-> mapper.map(c, CourseDTO.class)).collect(Collectors.toList());
         }catch (NoSuchElementException e){
             throw new StudentNotFoundException();
+        }
+    }
+
+    @Override
+    public List<TeamDTO> getTeamsForStudent(String studentId) {
+        try {
+            return studentRepository.findById(studentId).get().getTeams()
+                    .stream().map(t -> mapper.map(t, TeamDTO.class))
+                    .collect(Collectors.toList());
+        }catch (NoSuchElementException e){
+            throw new StudentNotFoundException();
+        }
+    }
+
+    @Override
+    public List<StudentDTO> getMembers(Long TeamId) {
+        try{
+            return teamRepository.findById(TeamId).get().getMembers()
+                    .stream().map(m->mapper.map(m, StudentDTO.class))
+                    .collect(Collectors.toList());
+        }catch (NoSuchElementException e){
+            throw new TeamNotFoundException();
         }
     }
 }

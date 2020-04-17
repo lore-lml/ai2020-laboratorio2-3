@@ -24,18 +24,31 @@ public class Student {
     )
     private List<Course> courses = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "members")
+    private List<Team> teams = new ArrayList<>();
+
     public void addCourse(Course course){
         if(course == null)
             return;
 
-        /*courses.add(course);
-
-        List<Student> students = course.getStudents();
-        if(!students.contains(this))
-            students.add(this);*/
-
         courses.add(course);
         course.getStudents().add(this);
+    }
+
+    public void addTeam(Team team){
+        if(team == null)
+            return;
+
+        teams.add(team);
+        team.getMembers().add(this);
+    }
+
+    public void removeTeam(Team team){
+        if(team == null)
+            return;
+
+        teams.remove(team);
+        team.getMembers().remove(this);
     }
 
     @Override

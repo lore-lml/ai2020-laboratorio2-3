@@ -8,21 +8,28 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
+
 @SpringBootApplication
 public class Lab2Application {
 
     @Bean
     public CommandLineRunner runner(TeamService teamService){
         return args -> {
-            /*
+
             //ADD AND ENROLL STUDENTS
+            /*
             File file = new File("src/main/resources/static/students.csv");
             try(Reader reader = new BufferedReader(new FileReader(file))){
-                teamService.addAndEnroll(reader, "Applicazioni Internet");
+                System.out.println(teamService.addAndEnroll(reader, "Applicazioni Internet"));
             }catch (Exception ex) {
                 System.out.println("An error occured while processing csv files: " + ex.getMessage());
 
             }
+
             System.out.println();
 
             //GETTERS
