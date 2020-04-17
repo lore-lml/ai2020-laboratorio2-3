@@ -1,4 +1,4 @@
-package it.ai.polito.lab2.exceptions;
+package it.ai.polito.lab2.service.exceptions;
 
 public class TeamServiceException extends RuntimeException {
     public TeamServiceException() {

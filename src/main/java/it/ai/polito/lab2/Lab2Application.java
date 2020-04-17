@@ -1,17 +1,12 @@
 package it.ai.polito.lab2;
 
-import it.ai.polito.lab2.dtos.CourseDTO;
-import it.ai.polito.lab2.dtos.StudentDTO;
-import it.ai.polito.lab2.entities.Course;
-import it.ai.polito.lab2.exceptions.TeamServiceException;
+import it.ai.polito.lab2.service.exceptions.TeamServiceException;
 import it.ai.polito.lab2.service.TeamService;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import java.io.*;
 
 @SpringBootApplication
 public class Lab2Application {
