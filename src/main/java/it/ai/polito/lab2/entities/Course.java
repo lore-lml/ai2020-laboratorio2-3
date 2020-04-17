@@ -18,6 +18,9 @@ public class Course {
     @ManyToMany(mappedBy = "courses")
     private List<Student> students = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course")
+    private List<Team> teams = new ArrayList<>();
+
     public boolean addStudent(Student student){
         if(student == null || students.contains(student))
             return false;
@@ -29,6 +32,22 @@ public class Course {
             courses.add(this);
 
         return true;
+    }
+
+    public void addTeam(Team team){
+        if(team == null || teams.contains(team))
+            return;
+
+        teams.add(team);
+        team.setCourse(this);
+    }
+
+    public void removeTeam(Team team){
+        if(team == null || !teams.contains(team))
+            return;
+
+        teams.remove(team);
+        team.setCourse(null);
     }
 
     @Override
