@@ -1,11 +1,14 @@
 package it.ai.polito.lab2.service;
 
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import it.ai.polito.lab2.dtos.CourseDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
 import it.ai.polito.lab2.entities.Course;
 import it.ai.polito.lab2.entities.Student;
 import it.ai.polito.lab2.exceptions.CourseNotFoundException;
 import it.ai.polito.lab2.exceptions.StudentNotFoundException;
+import it.ai.polito.lab2.exceptions.TeamServiceException;
 import it.ai.polito.lab2.repositories.CourseRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
 import org.modelmapper.ModelMapper;
@@ -13,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -75,7 +80,7 @@ public class TeamServiceImpl implements TeamService {
             return courseRepository.findById(courseName).get().getStudents().stream()
                     .map(s-> mapper.map(s, StudentDTO.class)).collect(Collectors.toList());
         }catch (NoSuchElementException e){
-            return null;
+            throw new CourseNotFoundException();
         }
     }
 
@@ -86,17 +91,15 @@ public class TeamServiceImpl implements TeamService {
         try{
             s = studentRepository.findById(studentId).get();
         }catch (NoSuchElementException e){
-            throw new StudentNotFoundException(e);
+            throw new StudentNotFoundException();
         }
         try{
             c = courseRepository.findById(courseName).get();
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException(e);
+            throw new CourseNotFoundException();
         }
 
-        c.addStudent(s);
-        courseRepository.save(c);
-        return true;
+        return c.addStudent(s);
     }
 
     @Override
@@ -104,9 +107,8 @@ public class TeamServiceImpl implements TeamService {
         try{
             Course c = courseRepository.findById(courseName).get();
             c.setEnabled(true);
-            courseRepository.save(c);
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException(e);
+            throw new CourseNotFoundException();
         }
     }
 
@@ -117,7 +119,54 @@ public class TeamServiceImpl implements TeamService {
             c.setEnabled(false);
             courseRepository.save(c);
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException(e);
+            throw new CourseNotFoundException();
+        }
+    }
+
+    @Override
+    public List<Boolean> addAll(List<StudentDTO> students) {
+        List<Boolean> res = new ArrayList<>();
+        students.forEach(s-> res.add(addStudent(s)));
+        return res;
+    }
+
+    @Override
+    public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
+        try {
+            List<Boolean> res = new ArrayList<>();
+            studentIds.forEach(s -> res.add(addStudentToCourse(s, courseName)));
+            return res;
+        }catch (TeamServiceException e){
+            throw e;
+        }
+    }
+
+    @Override
+    public List<Boolean> addAndEnroll(Reader r, String courseName) {
+        CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder(r)
+                .withType(StudentDTO.class)
+                .withIgnoreLeadingWhiteSpace(true)
+                .build();
+
+        try {
+            List<StudentDTO> students = csvToBean.parse();
+            addAll(students);
+            return enrollAll(students.stream()
+                    .map(StudentDTO::getId)
+                    .collect(Collectors.toList()),
+                    courseName);
+        }catch (TeamServiceException e){
+            throw e;
+        }
+    }
+
+    @Override
+    public List<CourseDTO> getCourses(String studentId) {
+        try{
+            Student s = studentRepository.findById(studentId).get();
+            return s.getCourses().stream().map(c-> mapper.map(c, CourseDTO.class)).collect(Collectors.toList());
+        }catch (NoSuchElementException e){
+            throw new StudentNotFoundException();
         }
     }
 }

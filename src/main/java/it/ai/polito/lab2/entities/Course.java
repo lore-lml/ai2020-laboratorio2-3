@@ -19,14 +19,30 @@ public class Course {
     private List<Student> students = new ArrayList<>();
 
     public boolean addStudent(Student student){
-        if(!students.contains(student))
-            students.add(student);
+        if(student == null || students.contains(student))
+            return false;
+
+        students.add(student);
 
         List<Course> courses = student.getCourses();
         if(!courses.contains(this))
             courses.add(this);
 
-        //TODO: capire quando tornare false
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Course course = (Course) o;
+
+        return name.equals(course.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }

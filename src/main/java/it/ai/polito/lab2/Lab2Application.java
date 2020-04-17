@@ -1,7 +1,5 @@
 package it.ai.polito.lab2;
 
-import it.ai.polito.lab2.repositories.CourseRepository;
-import it.ai.polito.lab2.repositories.StudentRepository;
 import it.ai.polito.lab2.service.TeamService;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
@@ -9,15 +7,21 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.io.*;
+
 @SpringBootApplication
 public class Lab2Application {
 
     @Bean
     public CommandLineRunner runner(TeamService teamService){
         return args -> {
-            teamService.getAllCourses().forEach(System.out::println);
-            System.out.println();
-            teamService.getAllStudents().forEach(System.out::println);
+            /*File file = new File("src/main/resources/static/students.csv");
+            try(Reader reader = new BufferedReader(new FileReader(file))){
+                teamService.addAndEnroll(reader, "Programmazione di Sistema");
+            }catch (Exception ex) {
+                System.out.println("An error occured while processing csv files: " + ex.getMessage());
+
+            }*/
         };
     }
 

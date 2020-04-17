@@ -3,6 +3,7 @@ package it.ai.polito.lab2.service;
 import it.ai.polito.lab2.dtos.CourseDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
 
+import java.io.Reader;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +18,8 @@ public interface TeamService {
     boolean addStudentToCourse(String studentId, String courseName);
     void enableCourse(String courseName);
     void disableCourse(String courseName);
+    List<Boolean> addAll(List<StudentDTO> students);
+    List<Boolean> enrollAll(List<String> studentIds, String courseName);
+    List<Boolean> addAndEnroll(Reader r, String courseName);
+    List<CourseDTO> getCourses(String studentId);
 }

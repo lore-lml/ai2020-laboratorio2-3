@@ -3,6 +3,7 @@ package it.ai.polito.lab2.exceptions;
 public class CourseNotFoundException extends TeamServiceException{
     public CourseNotFoundException() {
         super();
+        System.err.println("Course doesn't exist");
     }
 
     public CourseNotFoundException(String message) {
