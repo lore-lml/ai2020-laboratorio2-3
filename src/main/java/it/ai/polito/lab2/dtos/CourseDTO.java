@@ -9,6 +9,14 @@ public class CourseDTO {
     private int max;
     private boolean enabled;
 
+    public CourseDTO() {}
+
+    public CourseDTO(String name, int min, int max) {
+        this.name = name;
+        this.min = min;
+        this.max = max;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

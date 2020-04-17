@@ -24,17 +24,18 @@ public class Student {
     )
     private List<Course> courses = new ArrayList<>();
 
-    public boolean addCourse(Course course){
-        if(course == null || courses.contains(course))
-            return false;
+    public void addCourse(Course course){
+        if(course == null)
+            return;
 
-        courses.add(course);
+        /*courses.add(course);
 
         List<Student> students = course.getStudents();
         if(!students.contains(this))
-            students.add(this);
+            students.add(this);*/
 
-        return true;
+        courses.add(course);
+        course.getStudents().add(this);
     }
 
     @Override

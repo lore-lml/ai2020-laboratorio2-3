@@ -56,7 +56,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public boolean addStudent(StudentDTO student) {
-        if(student == null || studentRepository.findById(student.getName()).isPresent())
+        if(student == null || studentRepository.findById(student.getId()).isPresent())
             return false;
         studentRepository.save(mapper.map(student, Student.class));
         return true;
@@ -99,7 +99,13 @@ public class TeamServiceImpl implements TeamService {
             throw new CourseNotFoundException();
         }
 
-        return c.addStudent(s);
+        //Se la relazione esiste già ritorna false
+        if(c.getStudents().contains(s) && s.getCourses().contains(c))
+            return false;
+
+        //Altrimenti aggiunge e ritorna true
+        c.addStudent(s);
+        return true;
     }
 
     @Override
@@ -153,8 +159,10 @@ public class TeamServiceImpl implements TeamService {
             addAll(students);
             return enrollAll(students.stream()
                     .map(StudentDTO::getId)
-                    .collect(Collectors.toList()),
-                    courseName);
+                    .collect(Collectors.toList())
+                    ,
+                    courseName
+            );
         }catch (TeamServiceException e){
             throw e;
         }

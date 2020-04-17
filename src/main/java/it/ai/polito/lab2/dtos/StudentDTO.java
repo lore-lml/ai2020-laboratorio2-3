@@ -12,6 +12,14 @@ public class StudentDTO {
     @CsvBindByName
     private String firstName;
 
+    public StudentDTO() {}
+
+    public StudentDTO(String id, String name, String firstName) {
+        this.id = id;
+        this.name = name;
+        this.firstName = firstName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

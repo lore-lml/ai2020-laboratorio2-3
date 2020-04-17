@@ -21,21 +21,22 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private List<Team> teams = new ArrayList<>();
 
-    public boolean addStudent(Student student){
-        if(student == null || students.contains(student))
-            return false;
+    public void addStudent(Student student){
+        if(student == null)
+            return;
 
-        students.add(student);
+        /*students.add(student);
 
         List<Course> courses = student.getCourses();
         if(!courses.contains(this))
-            courses.add(this);
+            courses.add(this);*/
 
-        return true;
+        students.add(student);
+        student.getCourses().add(this);
     }
 
     public void addTeam(Team team){
-        if(team == null || teams.contains(team))
+        if(team == null)
             return;
 
         teams.add(team);
@@ -43,7 +44,7 @@ public class Course {
     }
 
     public void removeTeam(Team team){
-        if(team == null || !teams.contains(team))
+        if(team == null)
             return;
 
         teams.remove(team);

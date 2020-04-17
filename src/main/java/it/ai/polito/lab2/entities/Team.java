@@ -24,11 +24,8 @@ public class Team {
         if(this.course != null)
             this.course.getTeams().remove(this);
 
-        if(course != null){
-            List<Team> teams = course.getTeams();
-            if(!teams.contains(this))
-                teams.add(this);
-        }
+        if(course != null)
+            course.getTeams().add(this);
         
         this.course = course;
     }
