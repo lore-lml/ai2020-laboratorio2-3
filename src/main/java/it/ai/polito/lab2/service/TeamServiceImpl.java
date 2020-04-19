@@ -7,13 +7,11 @@ import it.ai.polito.lab2.dtos.StudentDTO;
 import it.ai.polito.lab2.dtos.TeamDTO;
 import it.ai.polito.lab2.entities.Course;
 import it.ai.polito.lab2.entities.Student;
+import it.ai.polito.lab2.entities.Team;
 import it.ai.polito.lab2.repositories.CourseRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
 import it.ai.polito.lab2.repositories.TeamRepository;
-import it.ai.polito.lab2.service.exceptions.CourseNotFoundException;
-import it.ai.polito.lab2.service.exceptions.StudentNotFoundException;
-import it.ai.polito.lab2.service.exceptions.TeamNotFoundException;
-import it.ai.polito.lab2.service.exceptions.TeamServiceException;
+import it.ai.polito.lab2.service.exceptions.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -203,5 +201,39 @@ public class TeamServiceImpl implements TeamService {
         }catch (NoSuchElementException e){
             throw new TeamNotFoundException();
         }
+    }
+
+    @Override
+    public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
+        Optional<Course> oc = courseRepository.findById(courseId);
+        if(!oc.isPresent())
+            throw new CourseNotFoundException();
+
+        Course c = oc.get();
+        if(!c.isEnabled())
+            throw new CourseNotEnabledException(c.getName());
+
+        List<Student> enrolledStudents = c.getStudents();
+        List<Student> members = new ArrayList<>();
+        try {
+            memberIds.forEach(m -> {
+                Student s = studentRepository.findById(m).get();
+                if(!enrolledStudents.contains(s))
+                    throw new StudentNotEnrolledException(m, courseId);
+                members.add(s);
+            });
+        }catch (NoSuchElementException e) {
+            throw new StudentNotFoundException();
+        }
+
+        int teamSize = memberIds.size();
+        if(teamSize < c.getMin() || teamSize > c.getMax())
+            throw new TeamSizeOutOfBoundException(c.getMin(), c.getMax());
+
+        Team team = new Team();
+        team.setName(name);
+        team.setMembers(members);
+
+        return mapper.map(teamRepository.save(team), TeamDTO.class);
     }
 }

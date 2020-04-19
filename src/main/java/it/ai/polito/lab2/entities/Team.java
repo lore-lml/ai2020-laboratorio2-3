@@ -20,6 +20,7 @@ public class Team {
     private String name;
     private int status;
 
+
     @ManyToOne
     @JoinColumn(name = courseId)
     private Course course;

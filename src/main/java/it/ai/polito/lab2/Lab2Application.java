@@ -1,5 +1,7 @@
 package it.ai.polito.lab2;
 
+import it.ai.polito.lab2.entities.Team;
+import it.ai.polito.lab2.repositories.TeamRepository;
 import it.ai.polito.lab2.service.exceptions.TeamServiceException;
 import it.ai.polito.lab2.service.TeamService;
 import org.modelmapper.ModelMapper;
@@ -17,7 +19,7 @@ import java.io.Reader;
 public class Lab2Application {
 
     @Bean
-    public CommandLineRunner runner(TeamService teamService){
+    public CommandLineRunner runner(TeamService teamService, TeamRepository teamRepository){
         return args -> {
 
             //ADD AND ENROLL STUDENTS
@@ -49,14 +51,15 @@ public class Lab2Application {
             teamService.addStudentToCourse("s1", "Programmazione di Sistema");
             teamService.addStudentToCourse("s1", "Reti");
             System.out.println("GET STUDENT COURSES:\n" + teamService.getCourses("s1"));*/
+            
 
             //TEST ERRORS
-            try {
+            /*try {
                 teamService.getCourses("asdkl");
 
             }catch (TeamServiceException e){
                 System.err.println(e);
-            }
+            }*/
         };
     }
 

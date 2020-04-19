@@ -10,8 +10,7 @@ public class TeamDTO {
 
     public TeamDTO() {}
 
-    public TeamDTO(Long id, String name, int status) {
-        this.id = id;
+    public TeamDTO(String name, int status) {
         this.name = name;
         this.status = status;
     }
