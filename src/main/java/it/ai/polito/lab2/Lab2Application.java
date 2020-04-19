@@ -58,7 +58,7 @@ public class Lab2Application {
 
             //TEST ERRORS
             try {
-                System.out.println(teamService.getTeamsForStudent("s1"));
+                System.out.println(teamService.getAvailableStudents("Applicazioni Internet"));
 
             }catch (TeamServiceException e){
                 System.err.println(e);
