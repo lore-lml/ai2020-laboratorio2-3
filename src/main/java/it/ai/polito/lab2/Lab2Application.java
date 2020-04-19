@@ -14,12 +14,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @SpringBootApplication
 public class Lab2Application {
 
     @Bean
-    public CommandLineRunner runner(TeamService teamService, TeamRepository teamRepository){
+    public CommandLineRunner runner(TeamService teamService){
         return args -> {
 
             //ADD AND ENROLL STUDENTS
@@ -54,12 +57,12 @@ public class Lab2Application {
             
 
             //TEST ERRORS
-            /*try {
-                teamService.getCourses("asdkl");
+            try {
+                System.out.println(teamService.getTeamsForStudent("s1"));
 
             }catch (TeamServiceException e){
                 System.err.println(e);
-            }*/
+            }
         };
     }
 

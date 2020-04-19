@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -226,12 +223,19 @@ public class TeamServiceImpl implements TeamService {
             throw new StudentNotFoundException();
         }
 
+        members.forEach(m->
+                m.getTeams().stream().map(Team::getCourse).forEach(course->{
+                    if(course.equals(c))
+                        throw new StudentAlreadyBelongsToTeam(m.getId(), course.getName());
+        }));
+
         int teamSize = memberIds.size();
         if(teamSize < c.getMin() || teamSize > c.getMax())
             throw new TeamSizeOutOfBoundException(c.getMin(), c.getMax());
 
         Team team = new Team();
         team.setName(name);
+        team.setCourse(c);
         team.setMembers(members);
 
         return mapper.map(teamRepository.save(team), TeamDTO.class);
