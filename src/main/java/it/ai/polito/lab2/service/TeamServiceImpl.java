@@ -257,6 +257,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
+        if(!courseRepository.findById(courseName).isPresent())
+            throw new CourseNotFoundException();
+
         return courseRepository.getStudentsInTeams(courseName)
                 .stream().map(s->mapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
@@ -264,7 +267,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
-        try {
+        /*try {
             Course c = courseRepository.findById(courseName).get();
             return c.getStudents().stream()
                     .filter(s-> {
@@ -276,6 +279,12 @@ public class TeamServiceImpl implements TeamService {
                     .collect(Collectors.toList());
         }catch (NoSuchElementException e){
             throw new CourseNotFoundException();
-        }
+        }*/
+        if(!courseRepository.findById(courseName).isPresent())
+            throw new CourseNotFoundException();
+
+        return courseRepository.getStudentsNotInTeams(courseName)
+                .stream().map(s->mapper.map(s, StudentDTO.class))
+                .collect(Collectors.toList());
     }
 }
