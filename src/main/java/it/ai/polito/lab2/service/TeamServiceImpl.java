@@ -80,7 +80,7 @@ public class TeamServiceImpl implements TeamService {
             return courseRepository.findById(courseName).get().getStudents().stream()
                     .map(s-> mapper.map(s, StudentDTO.class)).collect(Collectors.toList());
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseName);
         }
     }
 
@@ -88,17 +88,19 @@ public class TeamServiceImpl implements TeamService {
     public boolean addStudentToCourse(String studentId, String courseName) {
         Student s;
         Course c;
+        //Controllo esistenza studente e corso
         try{
             s = studentRepository.findById(studentId).get();
         }catch (NoSuchElementException e){
-            throw new StudentNotFoundException();
+            throw new StudentNotFoundException(studentId);
         }
         try{
             c = courseRepository.findById(courseName).get();
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseName);
         }
 
+        //Controllo che il corso sia abilitato
         if(!c.isEnabled())
             throw new CourseNotEnabledException(courseName);
 
@@ -117,7 +119,7 @@ public class TeamServiceImpl implements TeamService {
             Course c = courseRepository.findById(courseName).get();
             c.setEnabled(true);
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseName);
         }
     }
 
@@ -126,9 +128,8 @@ public class TeamServiceImpl implements TeamService {
         try{
             Course c = courseRepository.findById(courseName).get();
             c.setEnabled(false);
-            courseRepository.save(c);
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseName);
         }
     }
 
@@ -163,8 +164,8 @@ public class TeamServiceImpl implements TeamService {
             return enrollAll(students.stream()
                     .map(StudentDTO::getId)
                     .collect(Collectors.toList())
-                    ,
-                    courseName
+                ,
+                courseName
             );
         }catch (TeamServiceException e){
             throw e;
@@ -175,9 +176,11 @@ public class TeamServiceImpl implements TeamService {
     public List<CourseDTO> getCourses(String studentId) {
         try{
             Student s = studentRepository.findById(studentId).get();
-            return s.getCourses().stream().map(c-> mapper.map(c, CourseDTO.class)).collect(Collectors.toList());
+            return s.getCourses().stream()
+                    .map(c-> mapper.map(c, CourseDTO.class))
+                    .collect(Collectors.toList());
         }catch (NoSuchElementException e){
-            throw new StudentNotFoundException();
+            throw new StudentNotFoundException(studentId);
         }
     }
 
@@ -188,7 +191,7 @@ public class TeamServiceImpl implements TeamService {
                     .stream().map(t -> mapper.map(t, TeamDTO.class))
                     .collect(Collectors.toList());
         }catch (NoSuchElementException e){
-            throw new StudentNotFoundException();
+            throw new StudentNotFoundException(studentId);
         }
     }
 
@@ -199,28 +202,31 @@ public class TeamServiceImpl implements TeamService {
                     .stream().map(m->mapper.map(m, StudentDTO.class))
                     .collect(Collectors.toList());
         }catch (NoSuchElementException e){
-            throw new TeamNotFoundException();
+            throw new TeamNotFoundException(TeamId);
         }
     }
 
     @Override
     public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
+        //Controllo che il corso esista
         Optional<Course> oc = courseRepository.findById(courseId);
         if(!oc.isPresent())
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseId);
 
+        //Controllo che il corso sia abilitato
         Course c = oc.get();
         if(!c.isEnabled())
             throw new CourseNotEnabledException(c.getName());
 
         List<Student> enrolledStudents = c.getStudents();
-        List<Student> members = new ArrayList<>();
+        List<Student> members = new ArrayList<>();  //Conterrà la lista dei membri del gruppo
         try {
             memberIds.forEach(m -> {
-                Student s = studentRepository.findById(m).get(); //Throw NoSuchElementException if student doesn't exist
+                Student s = studentRepository.findById(m).get(); //Throw NoSuchElementException se lo student non esiste nel db
                 if(!enrolledStudents.contains(s))
                     throw new StudentNotEnrolledException(m, courseId);
 
+                //Controlla che ogni studente non appartenga già ad un gruppo per il corso selezionato
                 if(s.getTeams().stream().map(Team::getCourse)
                         .collect(Collectors.toList()).contains(c))
                     throw new StudentAlreadyBelongsToTeam(s.getId(), courseId);
@@ -231,10 +237,12 @@ public class TeamServiceImpl implements TeamService {
             throw new StudentNotFoundException();
         }
 
+        //Controllo che la dimensione del gruppo sia entro i limiti dichiarati nel corso
         int teamSize = memberIds.size();
         if(teamSize < c.getMin() || teamSize > c.getMax())
             throw new TeamSizeOutOfBoundException(c.getMin(), c.getMax());
 
+        //Se tutto è andato bene creo il team
         Team team = new Team();
         team.setName(name);
         team.setCourse(c);
@@ -246,10 +254,12 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<TeamDTO> getTeamForCourse(String courseName) {
         try {
-            return courseRepository.findById(courseName).get().getTeams().stream()
-                    .map(t-> mapper.map(t, TeamDTO.class)).collect(Collectors.toList());
+            return courseRepository.findById(courseName).get()
+                    .getTeams().stream()
+                    .map(t-> mapper.map(t, TeamDTO.class))
+                    .collect(Collectors.toList());
         }catch (NoSuchElementException e){
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseName);
         }
 
     }
@@ -257,7 +267,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if(!courseRepository.findById(courseName).isPresent())
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseName);
 
         return courseRepository.getStudentsInTeams(courseName)
                 .stream().map(s->mapper.map(s, StudentDTO.class))
@@ -268,7 +278,7 @@ public class TeamServiceImpl implements TeamService {
     public List<StudentDTO> getAvailableStudents(String courseName) {
 
         if(!courseRepository.findById(courseName).isPresent())
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException(courseName);
 
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream().map(s->mapper.map(s, StudentDTO.class))
