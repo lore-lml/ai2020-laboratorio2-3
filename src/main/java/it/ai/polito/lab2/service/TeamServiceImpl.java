@@ -36,7 +36,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public boolean addCourse(CourseDTO course) {
-        if(course == null || courseRepository.findById(course.getName()).isPresent())
+        if(courseRepository.findById(course.getName()).isPresent())
             return false;
         courseRepository.save(mapper.map(course, Course.class));
         return true;
@@ -56,7 +56,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public boolean addStudent(StudentDTO student) {
-        if(student == null || studentRepository.findById(student.getId()).isPresent())
+        if(studentRepository.findById(student.getId()).isPresent())
             return false;
         studentRepository.save(mapper.map(student, Student.class));
         return true;

@@ -1,6 +1,7 @@
 package it.ai.polito.lab2.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -8,11 +9,15 @@ import java.util.List;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Student {
+
     private static final String joinTable = "student_course";
     private static final String joinColumn = "student_id";
     private static final String inverseJoinCol = "course_name";
+
     @Id
+    @EqualsAndHashCode.Include
     private String id;
     private String name;
     private String firstName;
@@ -49,20 +54,5 @@ public class Student {
 
         teams.remove(team);
         team.getMembers().remove(this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Student student = (Student) o;
-
-        return id.equals(student.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
     }
 }

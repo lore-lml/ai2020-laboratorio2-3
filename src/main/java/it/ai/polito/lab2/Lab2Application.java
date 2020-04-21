@@ -1,5 +1,6 @@
 package it.ai.polito.lab2;
 
+import it.ai.polito.lab2.dtos.StudentDTO;
 import it.ai.polito.lab2.entities.Team;
 import it.ai.polito.lab2.repositories.TeamRepository;
 import it.ai.polito.lab2.service.exceptions.TeamServiceException;
@@ -54,15 +55,7 @@ public class Lab2Application {
             teamService.addStudentToCourse("s1", "Programmazione di Sistema");
             teamService.addStudentToCourse("s1", "Reti");
             System.out.println("GET STUDENT COURSES:\n" + teamService.getCourses("s1"));*/
-            
 
-            //TEST ERRORS
-            try {
-                System.out.println(new Team());
-
-            }catch (TeamServiceException e){
-                System.err.println(e);
-            }
         };
     }
 

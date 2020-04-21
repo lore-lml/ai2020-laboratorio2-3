@@ -1,6 +1,7 @@
 package it.ai.polito.lab2.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -8,8 +9,11 @@ import java.util.List;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Course {
+
     @Id
+    @EqualsAndHashCode.Include
     private String name;
     private int min;
     private int max;
@@ -24,12 +28,6 @@ public class Course {
     public void addStudent(Student student){
         if(student == null)
             return;
-
-        /*students.add(student);
-
-        List<Course> courses = student.getCourses();
-        if(!courses.contains(this))
-            courses.add(this);*/
 
         students.add(student);
         student.getCourses().add(this);
@@ -49,20 +47,5 @@ public class Course {
 
         teams.remove(team);
         team.setCourse(null);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Course course = (Course) o;
-
-        return name.equals(course.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
     }
 }

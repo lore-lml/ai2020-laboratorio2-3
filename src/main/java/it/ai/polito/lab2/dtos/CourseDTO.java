@@ -1,11 +1,15 @@
 package it.ai.polito.lab2.dtos;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CourseDTO {
+
+    @EqualsAndHashCode.Include
     private String name;
     private int min;
     private int max;
@@ -15,20 +19,5 @@ public class CourseDTO {
         this.name = name;
         this.min = min;
         this.max = max;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CourseDTO courseDTO = (CourseDTO) o;
-
-        return name.equals(courseDTO.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
     }
 }
