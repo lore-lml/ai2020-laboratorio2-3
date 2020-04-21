@@ -1,15 +1,15 @@
 package it.ai.polito.lab2.dtos;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class CourseDTO {
     private String name;
     private int min;
     private int max;
     private boolean enabled;
-
-    public CourseDTO() {}
 
     public CourseDTO(String name, int min, int max) {
         this.name = name;

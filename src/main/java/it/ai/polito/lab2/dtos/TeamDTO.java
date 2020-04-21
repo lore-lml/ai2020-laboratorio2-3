@@ -1,14 +1,14 @@
 package it.ai.polito.lab2.dtos;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class TeamDTO {
     private Long id;
     private String name;
     private int status;
-
-    public TeamDTO() {}
 
     public TeamDTO(String name, int status) {
         this.name = name;

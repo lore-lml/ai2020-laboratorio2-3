@@ -1,9 +1,13 @@
 package it.ai.polito.lab2.dtos;
 
 import com.opencsv.bean.CsvBindByName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class StudentDTO {
     @CsvBindByName
     private String id;
@@ -11,14 +15,6 @@ public class StudentDTO {
     private String name;
     @CsvBindByName
     private String firstName;
-
-    public StudentDTO() {}
-
-    public StudentDTO(String id, String name, String firstName) {
-        this.id = id;
-        this.name = name;
-        this.firstName = firstName;
-    }
 
     @Override
     public boolean equals(Object o) {

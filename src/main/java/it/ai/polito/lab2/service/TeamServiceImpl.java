@@ -217,20 +217,19 @@ public class TeamServiceImpl implements TeamService {
         List<Student> members = new ArrayList<>();
         try {
             memberIds.forEach(m -> {
-                Student s = studentRepository.findById(m).get();
+                Student s = studentRepository.findById(m).get(); //Throw NoSuchElementException if student doesn't exist
                 if(!enrolledStudents.contains(s))
                     throw new StudentNotEnrolledException(m, courseId);
+
+                if(s.getTeams().stream().map(Team::getCourse)
+                        .collect(Collectors.toList()).contains(c))
+                    throw new StudentAlreadyBelongsToTeam(s.getId(), courseId);
+
                 members.add(s);
             });
         }catch (NoSuchElementException e) {
             throw new StudentNotFoundException();
         }
-
-        members.forEach(m->
-                m.getTeams().stream().map(Team::getCourse).forEach(course->{
-                    if(course.equals(c))
-                        throw new StudentAlreadyBelongsToTeam(m.getId(), course.getName());
-        }));
 
         int teamSize = memberIds.size();
         if(teamSize < c.getMin() || teamSize > c.getMax())
