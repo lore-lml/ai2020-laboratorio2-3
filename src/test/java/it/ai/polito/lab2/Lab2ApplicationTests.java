@@ -2,10 +2,13 @@ package it.ai.polito.lab2;
 
 import it.ai.polito.lab2.dtos.CourseDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
+import it.ai.polito.lab2.dtos.TeamDTO;
 import it.ai.polito.lab2.service.TeamService;
-import it.ai.polito.lab2.service.exceptions.CourseNotFoundException;
-import it.ai.polito.lab2.service.exceptions.StudentNotFoundException;
+import it.ai.polito.lab2.service.exceptions.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,16 +17,22 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * ONLY RUN THESE TESTs WHEN ALL TABLES ARE EMPTY
+ */
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class Lab2ApplicationTests {
 
     @Autowired
     private TeamService teamService;
 
     @Test
+    @Order(1)
     void student() {
         List<StudentDTO> expected = Arrays.asList(
                 new StudentDTO("s1", "Limoli", "Lorenzo"),
@@ -41,6 +50,7 @@ class Lab2ApplicationTests {
     }
 
     @Test
+    @Order(2)
     void course(){
         List<CourseDTO> expected = Arrays.asList(
                 new CourseDTO("Applicazioni Internet", 2,4),
@@ -60,6 +70,7 @@ class Lab2ApplicationTests {
     }
 
     @Test
+    @Order(3)
     void enableDisableCourse(){
         try {
             String courseName = "Applicazioni Internet";
@@ -88,6 +99,7 @@ class Lab2ApplicationTests {
     }
 
     @Test
+    @Order(4)
     void addStudentToCourse(){
         String courseName = "Applicazioni Internet";
         File file = new File("src/main/resources/static/students.csv");
@@ -107,6 +119,8 @@ class Lab2ApplicationTests {
         );
         assertEquals(new HashSet<>(expected), new HashSet<>(teamService.getEnrolledStudents(courseName)));
 
+        assertFalse(teamService.addStudentToCourse(expected.get(0).getId(), courseName));
+
         try{
             teamService.getEnrolledStudents("fake");
             fail();
@@ -124,6 +138,98 @@ class Lab2ApplicationTests {
             fail();
         }catch (CourseNotFoundException ignored){}
 
+        try{
+            teamService.disableCourse(courseName);
+            assertFalse(teamService.addStudentToCourse(expected.get(0).getId(), courseName));
+        }catch (CourseNotEnabledException ignored){}
+
+    }
+
+    @Test
+    @Order(5)
+    void getCoursesByStudent(){
+        StudentDTO s = new StudentDTO("prova","test", "test");
+        teamService.addStudent(s);
+        List<CourseDTO> courses = teamService.getAllCourses();
+        courses.forEach(c->{
+            teamService.enableCourse(c.getName());
+            assertTrue(teamService.addStudentToCourse(s.getId(), c.getName()));
+        });
+        assertEquals(new HashSet<>(courses), new HashSet<>(teamService.getCourses(s.getId())));
+
+        try{
+            teamService.getCourses("fake");
+            fail();
+        }catch (StudentNotFoundException ignored){}
+    }
+
+    @Test
+    @Order(6)
+    void team(){
+        String courseName = "Applicazioni Internet";
+        List<String> members = teamService.getEnrolledStudents(courseName)
+                .stream().map(StudentDTO::getId)
+                .filter(id-> !id.equals("prova")).collect(Collectors.toList());
+
+        try{
+            teamService.proposeTeam("fake", "AI-Team", members);
+            fail();
+        }catch (CourseNotFoundException ignored){}
+
+        try {
+            teamService.disableCourse(courseName);
+            teamService.proposeTeam(courseName, "AI-Team", members);
+            fail();
+        }catch (CourseNotEnabledException ignored){}
+
+
+        try {
+            teamService.enableCourse(courseName);
+            List<String> m = new ArrayList<>(members);
+            m.add("fake");
+            teamService.proposeTeam(courseName, "AI-Team", m);
+            fail();
+        }catch (StudentNotFoundException ignored){}
+
+        try {
+            teamService.enableCourse("OOP");
+            teamService.proposeTeam("OOP", "OOP-Team", members);
+            fail();
+        }catch (StudentNotEnrolledException ignored){}
+
+        teamService.enableCourse(courseName);
+        TeamDTO team = teamService.proposeTeam(courseName, "AI-Team", members);
+
+        try {
+            teamService.proposeTeam(courseName, "AI-Team2", Arrays.asList(members.get(0)));
+            fail();
+        }catch (StudentAlreadyBelongsToTeam ignored){}
+
+        try {
+            StudentDTO s = teamService.getStudent("prova").get();
+            teamService.proposeTeam(courseName, "AI-Team2", Arrays.asList(s.getId()));
+            fail();
+        }catch (NoSuchElementException e){
+            fail();
+        }catch (TeamSizeOutOfBoundException ignored){}
+
+        assertEquals(Arrays.asList(team), teamService.getTeamForCourse(courseName));
+        assertEquals(Arrays.asList(team), teamService.getTeamsForStudent("s1"));
+        List<StudentDTO> expected = Arrays.asList(
+                new StudentDTO("s1", "Limoli", "Lorenzo"),
+                new StudentDTO("s2", "Loscalzo", "Stefano"),
+                new StudentDTO("s3", "Matteotti", "Giacomo"),
+                new StudentDTO("s4", "Rossi", "Marco")
+        );
+        assertEquals(new HashSet<>(expected), new HashSet<>(teamService.getMembers(team.getId())));
+        assertEquals(new HashSet<>(expected), new HashSet<>(teamService.getStudentsInTeams(courseName)));
+
+        try {
+            StudentDTO s = teamService.getStudent("prova").get();
+            assertEquals(new HashSet<>(Arrays.asList(s)), new HashSet<>(teamService.getAvailableStudents(courseName)));
+        }catch (NoSuchElementException e){
+            fail();
+        }
     }
 
 }
