@@ -22,6 +22,7 @@ import java.util.List;
 @SpringBootApplication
 public class Lab2Application {
 
+    //PER FARE I TEST HO UTILIZZATO Lab2ApplicationTests con JUNIT
     @Bean
     public CommandLineRunner runner(TeamService teamService){
         return args -> {
