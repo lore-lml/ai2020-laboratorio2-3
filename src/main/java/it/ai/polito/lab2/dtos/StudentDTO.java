@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class StudentDTO {
 
     @CsvBindByName
-    @EqualsAndHashCode.Include
     private String id;
 
     @CsvBindByName

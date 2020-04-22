@@ -11,8 +11,13 @@ public class CourseDTO {
 
     @EqualsAndHashCode.Include
     private String name;
+
+    @EqualsAndHashCode.Include
     private int min;
+
+    @EqualsAndHashCode.Include
     private int max;
+
     private boolean enabled;
 
     public CourseDTO(String name, int min, int max) {

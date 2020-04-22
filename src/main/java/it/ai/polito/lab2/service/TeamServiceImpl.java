@@ -160,7 +160,30 @@ public class TeamServiceImpl implements TeamService {
 
         try {
             List<StudentDTO> students = csvToBean.parse();
-            addAll(students);
+            List<Boolean> results = addAll(students);
+            assert (results.size() == students.size());
+
+            //La lista conterrà solo gli studenti che potenzialmente possono
+            //incorrere in problemi di inconsistenza
+            List<StudentDTO> studentCheck = new ArrayList<>();
+            for(int i = 0; i<results.size(); i++) {
+                //Tali studenti sono quelli che una volta provati ad aggiungere all'interno del db hanno ricevuto
+                //come valore di ritorno falso dalla funzione addStudent();
+                if (!results.get(i))
+                    studentCheck.add(students.get(i));
+            }
+
+            List<StudentDTO> expected = studentCheck.stream()
+                    //Assumo che essendo stato fatto su studenti che hanno precedentemente ritornato falso
+                    // sulla addStudent() esiste già quell'id sul db
+                    .map(s->getStudent(s.getId()).get())
+                    .collect(Collectors.toList());
+
+            //Se l'insieme dei dati degli studenti nel db è diverso da quelli forniti nel file
+            //Allora lancia una eccezione perchè c'è una inconsistenza
+            if(!new HashSet<>(studentCheck).equals(new HashSet<>(expected)))
+                throw new InconsistentStudentDataException();
+
             return enrollAll(students.stream()
                     .map(StudentDTO::getId)
                     .collect(Collectors.toList()),

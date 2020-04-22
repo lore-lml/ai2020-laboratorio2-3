@@ -9,7 +9,6 @@ import java.util.List;
 
 @Entity
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Student {
 
     private static final String joinTable = "student_course";
@@ -17,7 +16,6 @@ public class Student {
     private static final String inverseJoinCol = "course_name";
 
     @Id
-    @EqualsAndHashCode.Include
     private String id;
     private String name;
     private String firstName;

@@ -9,7 +9,6 @@ import java.util.List;
 
 @Entity
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Team {
 
     private static final String courseId = "course_id";
@@ -19,7 +18,6 @@ public class Team {
 
     @Id
     @GeneratedValue
-    @EqualsAndHashCode.Include
     private Long id;
     private String name;
     private int status;

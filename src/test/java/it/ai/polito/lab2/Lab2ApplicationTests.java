@@ -232,4 +232,20 @@ class Lab2ApplicationTests {
         }
     }
 
+    @Test
+    @Order(7)
+    void inconsistentData(){
+        String courseName = "Applicazioni Internet";
+        File file = new File("src/main/resources/static/inconsistentDataTest.csv");
+        try(Reader reader = new BufferedReader(new FileReader(file))){
+            teamService.enableCourse(courseName);
+            teamService.addAndEnroll(reader, courseName);
+            fail();
+        }catch (InconsistentStudentDataException ignored){
+        }catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            fail();
+        }
+    }
+
 }
