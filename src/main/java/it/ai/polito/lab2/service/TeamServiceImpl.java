@@ -163,8 +163,7 @@ public class TeamServiceImpl implements TeamService {
             addAll(students);
             return enrollAll(students.stream()
                     .map(StudentDTO::getId)
-                    .collect(Collectors.toList())
-                ,
+                    .collect(Collectors.toList()),
                 courseName
             );
         }catch (TeamServiceException e){
