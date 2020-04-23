@@ -12,7 +12,6 @@ import it.ai.polito.lab2.repositories.CourseRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
 import it.ai.polito.lab2.repositories.TeamRepository;
 import it.ai.polito.lab2.service.exceptions.*;
-import org.hibernate.exception.ConstraintViolationException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
