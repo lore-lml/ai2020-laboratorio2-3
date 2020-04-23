@@ -12,8 +12,10 @@ import it.ai.polito.lab2.repositories.CourseRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
 import it.ai.polito.lab2.repositories.TeamRepository;
 import it.ai.polito.lab2.service.exceptions.*;
+import org.hibernate.exception.ConstraintViolationException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -264,13 +266,17 @@ public class TeamServiceImpl implements TeamService {
         if(teamSize < c.getMin() || teamSize > c.getMax())
             throw new TeamSizeOutOfBoundException(c.getMin(), c.getMax());
 
-        //Se tutto è andato bene creo il team
-        Team team = new Team();
-        team.setName(name);
-        team.setCourse(c);
-        team.setMembers(members);
+        try {
+            //Se tutto è andato bene creo il team
+            Team team = new Team();
+            team.setName(name);
+            team.setCourse(c);
+            team.setMembers(members);
 
-        return mapper.map(teamRepository.save(team), TeamDTO.class);
+            return mapper.map(teamRepository.saveAndFlush(team), TeamDTO.class);
+        }catch (DataIntegrityViolationException e){
+            throw new TeamAlreadyExistException(name, courseId);
+        }
     }
 
     @Override

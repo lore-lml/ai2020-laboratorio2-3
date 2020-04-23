@@ -198,7 +198,7 @@ class Lab2ApplicationTests {
         }catch (StudentNotEnrolledException ignored){}
 
         teamService.enableCourse(courseName);
-        TeamDTO team = teamService.proposeTeam(courseName, "AI-Team", members);
+        TeamDTO teamAI = teamService.proposeTeam(courseName, "AI-Team", members);
 
         try {
             teamService.proposeTeam(courseName, "AI-Team2", Arrays.asList(members.get(0)));
@@ -206,22 +206,28 @@ class Lab2ApplicationTests {
         }catch (StudentAlreadyBelongsToTeam ignored){}
 
         try {
-            StudentDTO s = teamService.getStudent("prova").get();
-            teamService.proposeTeam(courseName, "AI-Team2", Arrays.asList(s.getId()));
-            fail();
-        }catch (NoSuchElementException e){
+            teamService.proposeTeam(courseName, "AI-Team2", Arrays.asList("prova"));
             fail();
         }catch (TeamSizeOutOfBoundException ignored){}
 
-        assertEquals(Arrays.asList(team), teamService.getTeamForCourse(courseName));
-        assertEquals(Arrays.asList(team), teamService.getTeamsForStudent("s1"));
+        teamService.addStudentToCourse("s1", "OOP");
+        TeamDTO teamOOP = teamService.proposeTeam("OOP", "OOP-Team", Arrays.asList("s1"));
+        try {
+
+            teamService.proposeTeam("OOP", "OOP-Team", Arrays.asList("prova"));
+            fail();
+        }catch (TeamAlreadyExistException ignored){}
+
+        assertEquals(Arrays.asList(teamAI), teamService.getTeamForCourse(courseName));
+        assertEquals(Arrays.asList(teamAI, teamOOP), teamService.getTeamsForStudent("s1"));
+
         List<StudentDTO> expected = Arrays.asList(
                 new StudentDTO("s1", "Limoli", "Lorenzo"),
                 new StudentDTO("s2", "Loscalzo", "Stefano"),
                 new StudentDTO("s3", "Matteotti", "Giacomo"),
                 new StudentDTO("s4", "Rossi", "Marco")
         );
-        assertEquals(new HashSet<>(expected), new HashSet<>(teamService.getMembers(team.getId())));
+        assertEquals(new HashSet<>(expected), new HashSet<>(teamService.getMembers(teamAI.getId())));
         assertEquals(new HashSet<>(expected), new HashSet<>(teamService.getStudentsInTeams(courseName)));
 
         try {

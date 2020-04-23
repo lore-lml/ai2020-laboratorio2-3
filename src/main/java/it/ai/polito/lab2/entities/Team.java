@@ -1,7 +1,6 @@
 package it.ai.polito.lab2.entities;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.List;
 
 @Entity
 @Data
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "course_id"}))
 public class Team {
 
     private static final String courseId = "course_id";

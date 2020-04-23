@@ -25,7 +25,6 @@ public class Lab2Application {
 
     //PER FARE I TEST HO UTILIZZATO Lab2ApplicationTests con JUNIT
     //Se si vuole runnare i test lasciare commentato il runner
-
     @Bean
     public CommandLineRunner runner(TeamService teamService){
         return args -> {
