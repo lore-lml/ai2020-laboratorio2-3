@@ -27,7 +27,7 @@ public class StudentController {
         try{
             return ModelHelper.enrich(teamService.getStudent(id).get());
         }catch (NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Student not found: %s", id));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Student not found: %s", id));
         }
     }
 

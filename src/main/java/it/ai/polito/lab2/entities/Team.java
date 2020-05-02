@@ -1,6 +1,8 @@
 package it.ai.polito.lab2.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ import java.util.List;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "course_id"}))
 public class Team {
 
+    public enum Status{PENDING, ACTIVE}
+
     private static final String courseId = "course_id";
     private static final String joinTable = "team_student";
     private static final String joinColumn = "team_id";
@@ -20,7 +24,7 @@ public class Team {
     @GeneratedValue
     private Long id;
     private String name;
-    private int status;
+    private Status status;
 
     @ManyToOne
     @JoinColumn(name = courseId)

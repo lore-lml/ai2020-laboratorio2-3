@@ -33,7 +33,8 @@ public class TeamServiceImpl implements TeamService {
     private TeamRepository teamRepository;
     @Autowired
     private ModelMapper mapper;
-
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public boolean addCourse(CourseDTO course) {
@@ -269,6 +270,7 @@ public class TeamServiceImpl implements TeamService {
             //Se tutto è andato bene creo il team
             Team team = new Team();
             team.setName(name);
+            team.setStatus(Team.Status.PENDING);
             team.setCourse(c);
             team.setMembers(members);
 
@@ -310,5 +312,20 @@ public class TeamServiceImpl implements TeamService {
         return courseRepository.getStudentsNotInTeams(courseName)
                 .stream().map(s->mapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void setTeamStatus(Long teamId, Team.Status status) {
+        try {
+            Team team = teamRepository.findById(teamId).get();
+            team.setStatus(status);
+        }catch (NoSuchElementException e){
+            throw new TeamNotFoundException(teamId);
+        }
+    }
+
+    @Override
+    public void evictTeam(Long teamId) {
+        teamRepository.deleteById(teamId);
     }
 }

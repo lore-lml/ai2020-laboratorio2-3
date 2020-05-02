@@ -1,7 +1,6 @@
 package it.ai.polito.lab2.entities;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
