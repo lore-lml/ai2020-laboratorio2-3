@@ -110,6 +110,6 @@ public class NotificationServiceImpl implements NotificationService{
         return String.format("Congratulazioni %s!\nSei stato invitato a far parte del team %s.\n" +
                 "Se sei interessato per favore conferma la tua partecipazione altrimenti puoi anche rifiutare l'invito immediatamente:\n\n" +
                 "Accetta:\t%s\n\n" +
-                "Rifiuta: %s \n", memberId, teamName, confirm, reject);
+                "Rifiuta:\t%s \n", memberId, teamName, confirm, reject);
     }
 }
