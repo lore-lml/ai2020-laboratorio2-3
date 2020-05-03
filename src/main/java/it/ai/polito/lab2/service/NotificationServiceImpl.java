@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -47,14 +48,15 @@ public class NotificationServiceImpl implements NotificationService{
     public boolean confirm(String token) {
         try {
             Token t = tokenRepository.findById(token).get();
-            //Se il token è scaduto non può confermare
-            if(Timestamp.valueOf(LocalDateTime.now()).compareTo(t.getExpiryDate()) >= 0)
-                return false;
-
             Long teamId = t.getTeamId();
-            List<Token> pendingTokens = tokenRepository.findAllByTeamId(teamId);
-            pendingTokens.remove(t);
-            if(pendingTokens.isEmpty())
+            //Se il token è scaduto non può confermare
+            if(Timestamp.valueOf(LocalDateTime.now(ZoneId.systemDefault())).compareTo(t.getExpiryDate()) >= 0) {
+                deleteTeamWithTokens(teamId);
+                return false;
+            }
+
+            tokenRepository.delete(t);
+            if(tokenRepository.countTokenByTeamId(teamId) == 0)
                 teamService.setTeamStatus(teamId, Team.Status.ACTIVE);
         }catch (NoSuchElementException e){
             return false;
@@ -63,13 +65,18 @@ public class NotificationServiceImpl implements NotificationService{
         return true;
     }
 
+    private void deleteTeamWithTokens(Long teamId){
+        tokenRepository.deleteAllByTeamId(teamId);
+        teamService.evictTeam(teamId);
+    }
+
     @Override
+    @Transactional
     public boolean reject(String token) {
         try {
             Token t = tokenRepository.findById(token).get();
             Long teamId = t.getTeamId();
-            tokenRepository.deleteAllByTeamId(teamId);
-            teamService.evictTeam(teamId);
+            deleteTeamWithTokens(teamId);
         }catch (NoSuchElementException e){
             return false;
         }
@@ -80,7 +87,7 @@ public class NotificationServiceImpl implements NotificationService{
     @Override
     @Async
     public void notifyTeam(TeamDTO dto, List<String> memberIds) {
-        Timestamp expiryDate = Timestamp.valueOf(LocalDateTime.now().plusHours(1));
+        Timestamp expiryDate = Timestamp.valueOf(LocalDateTime.now(ZoneId.systemDefault()).plusHours(1));
 
         for(String id : memberIds){
             Token token = createAndSaveToken(UUID.randomUUID().toString(), dto.getId(), expiryDate);
@@ -101,8 +108,8 @@ public class NotificationServiceImpl implements NotificationService{
         String reject = String.format("%s/notification/reject/%s", baseURL, tokenId);
 
         return String.format("Congratulazioni %s!\nSei stato invitato a far parte del team %s.\n" +
-                "Se sei interessato per favore conferma la tua partecipazione altrimenti puoi anche rifiutare l'invito immediatamente:\n" +
-                "Accetta: %s \n" +
+                "Se sei interessato per favore conferma la tua partecipazione altrimenti puoi anche rifiutare l'invito immediatamente:\n\n" +
+                "Accetta:\t%s\n\n" +
                 "Rifiuta: %s \n", memberId, teamName, confirm, reject);
     }
 }
