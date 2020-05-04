@@ -9,5 +9,5 @@ public interface NotificationService {
     boolean confirm(String token);
     boolean reject(String token);
     void notifyTeam(TeamDTO dto, List<String> memberIds);
-
+    void deleteExpiredToken();
 }

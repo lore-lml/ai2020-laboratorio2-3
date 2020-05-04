@@ -18,7 +18,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @EnableAsync
@@ -115,5 +117,20 @@ public class NotificationServiceImpl implements NotificationService{
                 "Se sei interessato per favore conferma la tua partecipazione altrimenti puoi anche rifiutare l'invito immediatamente:\n\n" +
                 "Accetta:\t%s\n\n" +
                 "Rifiuta:\t%s\n", memberId, teamName, confirm, reject);
+    }
+
+    @Override
+    @Transactional
+    public void deleteExpiredToken() {
+        List<Token> expiredTokens = tokenRepository
+                .findAllByExpiryDateBefore(Timestamp.valueOf(LocalDateTime.now(ZoneId.systemDefault())));
+        if(expiredTokens.isEmpty())
+            return;
+
+        Set<Long> teams = expiredTokens.stream().map(Token::getTeamId).collect(Collectors.toSet());
+
+        tokenRepository.deleteAll(expiredTokens);
+        if(!teams.isEmpty())
+            teams.forEach(teamService::evictTeam);
     }
 }

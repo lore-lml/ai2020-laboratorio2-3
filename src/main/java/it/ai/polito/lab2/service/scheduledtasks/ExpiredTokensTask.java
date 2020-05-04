@@ -15,8 +15,9 @@ public class ExpiredTokensTask {
     @Autowired
     private NotificationService notificationService;
 
-    @Scheduled(initialDelay = 10*1000, fixedRate = 5*1000) //every 60 secs
+    @Scheduled(initialDelay = 10*1000, fixedRate = 2*60*1000) //every 2 minutes
     public void deleteExpiredToken() {
         log.info("Erasing expired tokens: " + Timestamp.valueOf(LocalDateTime.now()));
+        notificationService.deleteExpiredToken();
     }
 }
