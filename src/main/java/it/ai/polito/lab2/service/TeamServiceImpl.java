@@ -231,11 +231,11 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
+    public TeamDTO proposeTeam(String courseName, String teamName, List<String> memberIds) {
         //Controllo che il corso esista
-        Optional<Course> oc = courseRepository.findById(courseId);
+        Optional<Course> oc = courseRepository.findById(courseName);
         if(!oc.isPresent())
-            throw new CourseNotFoundException(courseId);
+            throw new CourseNotFoundException(courseName);
 
         //Controllo che il corso sia abilitato
         Course c = oc.get();
@@ -249,12 +249,12 @@ public class TeamServiceImpl implements TeamService {
             try {
                 Student s = studentRepository.findById(m).get(); //Throw NoSuchElementException se lo student non esiste nel db
                 if(!enrolledStudents.contains(s))
-                    throw new StudentNotEnrolledException(m, courseId);
+                    throw new StudentNotEnrolledException(m, courseName);
 
                 //Controlla che ogni studente non appartenga già ad un gruppo per il corso selezionato
                 if(s.getTeams().stream().map(Team::getCourse)
                         .collect(Collectors.toList()).contains(c))
-                    throw new StudentAlreadyBelongsToTeam(s.getId(), courseId);
+                    throw new StudentAlreadyBelongsToTeam(s.getId(), courseName);
 
                 members.add(s);
             }catch (NoSuchElementException e) {
@@ -271,14 +271,14 @@ public class TeamServiceImpl implements TeamService {
         try {
             //Se tutto è andato bene creo il team
             Team team = new Team();
-            team.setName(name);
+            team.setName(teamName);
             team.setStatus(Team.Status.PENDING);
             team.setCourse(c);
             team.setMembers(members);
 
             return mapper.map(teamRepository.saveAndFlush(team), TeamDTO.class);
         }catch (DataIntegrityViolationException e){
-            throw new TeamAlreadyExistException(name, courseId);
+            throw new TeamAlreadyExistException(teamName, courseName);
         }
     }
 
@@ -324,6 +324,12 @@ public class TeamServiceImpl implements TeamService {
         }catch (NoSuchElementException e){
             throw new TeamNotFoundException(teamId);
         }
+    }
+
+    @Override
+    public Optional<TeamDTO> getTeam(Long id) {
+        Optional<Team> team = teamRepository.findById(id);
+        return team.map(t -> mapper.map(t, TeamDTO.class));
     }
 
     @Override

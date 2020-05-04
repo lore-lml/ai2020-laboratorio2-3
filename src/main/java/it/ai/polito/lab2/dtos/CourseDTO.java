@@ -5,12 +5,15 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class CourseDTO extends RepresentationModel<CourseDTO> {
 
     @EqualsAndHashCode.Include
+    @NotEmpty
     private String name;
 
     @EqualsAndHashCode.Include
