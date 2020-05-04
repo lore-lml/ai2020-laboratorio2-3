@@ -232,6 +232,10 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDTO proposeTeam(String courseName, String teamName, List<String> memberIds) {
+        //Controllo che non ci siano duplicati all'interno dei memberIds
+        int diff = memberIds.size() - new HashSet<>(memberIds).size();
+        if(diff != 0)
+            throw new DuplicateStudentException(diff);
         //Controllo che il corso esista
         Optional<Course> oc = courseRepository.findById(courseName);
         if(!oc.isPresent())
