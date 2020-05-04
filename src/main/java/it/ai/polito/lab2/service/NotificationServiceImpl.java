@@ -4,6 +4,7 @@ import it.ai.polito.lab2.dtos.TeamDTO;
 import it.ai.polito.lab2.entities.Team;
 import it.ai.polito.lab2.entities.Token;
 import it.ai.polito.lab2.repositories.TokenRepository;
+import it.ai.polito.lab2.service.exceptions.TeamNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -86,12 +87,15 @@ public class NotificationServiceImpl implements NotificationService{
 
     @Override
     @Async
-    public void notifyTeam(TeamDTO dto, List<String> memberIds) {
+    public void notifyTeam(TeamDTO team, List<String> memberIds) {
+        if(team == null || team.getId() == null)
+            throw new TeamNotFoundException();
+
         Timestamp expiryDate = Timestamp.valueOf(LocalDateTime.now(ZoneId.systemDefault()).plusHours(1));
 
         for(String id : memberIds){
-            Token token = createAndSaveToken(UUID.randomUUID().toString(), dto.getId(), expiryDate);
-            String message = buildMessage(token.getId(), dto.getName(), id);
+            Token token = createAndSaveToken(UUID.randomUUID().toString(), team.getId(), expiryDate);
+            String message = buildMessage(token.getId(), team.getName(), id);
             String email = String.format("s%s@studenti.polito.it", id);
             sendMessage(email, "Gruppo Applicazioni Internet", message);
         }
@@ -110,6 +114,6 @@ public class NotificationServiceImpl implements NotificationService{
         return String.format("Congratulazioni %s!\nSei stato invitato a far parte del team %s.\n" +
                 "Se sei interessato per favore conferma la tua partecipazione altrimenti puoi anche rifiutare l'invito immediatamente:\n\n" +
                 "Accetta:\t%s\n\n" +
-                "Rifiuta:\t%s \n", memberId, teamName, confirm, reject);
+                "Rifiuta:\t%s\n", memberId, teamName, confirm, reject);
     }
 }

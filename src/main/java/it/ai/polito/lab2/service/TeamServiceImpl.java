@@ -244,8 +244,9 @@ public class TeamServiceImpl implements TeamService {
 
         List<Student> enrolledStudents = c.getStudents();
         List<Student> members = new ArrayList<>();  //Conterrà la lista dei membri del gruppo
-        try {
-            memberIds.forEach(m -> {
+
+        memberIds.forEach(m -> {
+            try {
                 Student s = studentRepository.findById(m).get(); //Throw NoSuchElementException se lo student non esiste nel db
                 if(!enrolledStudents.contains(s))
                     throw new StudentNotEnrolledException(m, courseId);
@@ -256,10 +257,11 @@ public class TeamServiceImpl implements TeamService {
                     throw new StudentAlreadyBelongsToTeam(s.getId(), courseId);
 
                 members.add(s);
-            });
-        }catch (NoSuchElementException e) {
-            throw new StudentNotFoundException();
-        }
+            }catch (NoSuchElementException e) {
+                throw new StudentNotFoundException(m);
+            }
+        });
+
 
         //Controllo che la dimensione del gruppo sia entro i limiti dichiarati nel corso
         int teamSize = memberIds.size();

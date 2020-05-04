@@ -33,9 +33,6 @@ public class CourseController {
 
     @GetMapping({"", "/"})
     private List<CourseDTO> all(){
-        List<String> ids = Arrays.asList("s1", "s2");
-        TeamDTO team = teamService.proposeTeam("Applicazioni Internet", "DAMN", ids);
-        notificationService.notifyTeam(team, ids);
         return teamService.getAllCourses().stream().map(ModelHelper::enrich).collect(Collectors.toList());
     }
 
@@ -94,6 +91,19 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "An error occurred while reading the file, please try again later");
         } catch (TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
+    @PostMapping("{courseName}/proposeTeam")
+    @ResponseStatus(value = HttpStatus.CREATED)
+    private TeamDTO proposeTeam(@PathVariable String courseName, @RequestBody ModelHelper.TeamProposal proposal){
+        try{
+            TeamDTO team = teamService.proposeTeam(courseName, proposal.getTeamName(), proposal.getMemberIds());
+            notificationService.notifyTeam(team, proposal.getMemberIds());
+            return team;
+        }catch (TeamServiceException e){
+            String message = e.getMessage() == null ? "Error during team proposal" : e.getMessage();
+            throw new ResponseStatusException(HttpStatus.CONFLICT, message);
         }
     }
 }
