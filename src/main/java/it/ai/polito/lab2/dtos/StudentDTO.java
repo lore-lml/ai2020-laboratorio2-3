@@ -10,6 +10,7 @@ import org.springframework.hateoas.RepresentationModel;
 import javax.validation.constraints.NotEmpty;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
 public class StudentDTO extends RepresentationModel<StudentDTO> {
