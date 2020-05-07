@@ -16,8 +16,8 @@ import java.util.List;
 @SpringBootApplication
 @EnableScheduling
 public class Lab2Application {
+    /*
     @Bean
-
     public CommandLineRunner runner(UserRepository repository, PasswordEncoder passwordEncoder){
         return args -> {
             List<User> users = Arrays.asList(
@@ -31,6 +31,7 @@ public class Lab2Application {
             System.out.println(repository.findAll());
         };
     }
+    */
 
     @Bean
     public ModelMapper modelMapper(){

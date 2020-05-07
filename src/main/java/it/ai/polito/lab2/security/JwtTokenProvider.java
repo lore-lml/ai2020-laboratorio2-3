@@ -2,12 +2,12 @@ package it.ai.polito.lab2.security;
 
 import io.jsonwebtoken.*;
 import it.ai.polito.lab2.security.exceptions.InvalidJwtAuthenticationException;
+import it.ai.polito.lab2.security.service.JwtUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +24,7 @@ public class JwtTokenProvider {
     @Value("${jwt.token.expire-length}") // 1h
     private long validityInMilliseconds;
     @Autowired
-    private UserDetailsService userDetailsService;
+    private JwtUserDetailsService userDetailsService;
 
     @PostConstruct
     protected void init() {
