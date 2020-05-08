@@ -5,6 +5,7 @@ import it.ai.polito.lab2.entities.Team;
 import it.ai.polito.lab2.entities.Token;
 import it.ai.polito.lab2.repositories.TokenRepository;
 import it.ai.polito.lab2.service.exceptions.TeamNotFoundException;
+import it.ai.polito.lab2.service.exceptions.InvalidOrExpiredTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -49,23 +50,18 @@ public class NotificationServiceImpl implements NotificationService{
     @Override
     @Transactional
     public boolean confirm(String token) {
-        try {
-            Token t = tokenRepository.findById(token).get();
-            Long teamId = t.getTeamId();
-            //Se il token è scaduto non può confermare
-            if(Timestamp.valueOf(LocalDateTime.now(ZoneId.systemDefault())).compareTo(t.getExpiryDate()) >= 0) {
-                deleteTeamWithTokens(teamId);
-                return false;
-            }
+        Token t = tokenRepository.findById(token).orElseThrow(()-> new InvalidOrExpiredTokenException(token));
+        Long teamId = t.getTeamId();
+        //Se il token è scaduto non può confermare
+        if(Timestamp.valueOf(LocalDateTime.now(ZoneId.systemDefault())).compareTo(t.getExpiryDate()) >= 0)
+            throw new InvalidOrExpiredTokenException(token);
 
-            tokenRepository.delete(t);
-            if(tokenRepository.countTokenByTeamId(teamId) == 0)
-                teamService.setTeamStatus(teamId, Team.Status.ACTIVE);
-        }catch (NoSuchElementException e){
-            return false;
+        tokenRepository.delete(t);
+        if(tokenRepository.countTokenByTeamId(teamId) == 0) {
+            teamService.setTeamStatus(teamId, Team.Status.ACTIVE);
         }
 
-        return true;
+        return false;
     }
 
     private void deleteTeamWithTokens(Long teamId){
@@ -75,16 +71,14 @@ public class NotificationServiceImpl implements NotificationService{
 
     @Override
     @Transactional
-    public boolean reject(String token) {
-        try {
-            Token t = tokenRepository.findById(token).get();
-            Long teamId = t.getTeamId();
-            deleteTeamWithTokens(teamId);
-        }catch (NoSuchElementException e){
-            return false;
-        }
+    public void reject(String token) {
+        Token t = tokenRepository.findById(token).orElseThrow(()->new InvalidOrExpiredTokenException(token));
+        Long teamId = t.getTeamId();
+        //Se il token è scaduto non può rigettare
+        if(Timestamp.valueOf(LocalDateTime.now(ZoneId.systemDefault())).compareTo(t.getExpiryDate()) >= 0)
+            throw new InvalidOrExpiredTokenException(token);
 
-        return true;
+        deleteTeamWithTokens(teamId);
     }
 
     @Override
