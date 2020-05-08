@@ -23,12 +23,17 @@ public class JwtTokenProvider {
     private String secretKey;
     @Value("${jwt.token.expire-length}") // 1h
     private long validityInMilliseconds;
+    @Value("${jwt.token.prefix}")
+    private String prefix;
+    @Value("${jwt.token.header}")
+    private String header;
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
     @PostConstruct
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        prefix += " ";
     }
 
     public String createToken(String username, List<String> roles) {
@@ -54,9 +59,9 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest req) {
-        String bearerToken = req.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        String bearerToken = req.getHeader(header);
+        if (bearerToken != null && bearerToken.startsWith(prefix)) {
+            return bearerToken.substring(prefix.length());
         }
         return null;
     }

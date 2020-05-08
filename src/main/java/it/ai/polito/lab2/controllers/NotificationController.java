@@ -1,6 +1,7 @@
 package it.ai.polito.lab2.controllers;
 
 import it.ai.polito.lab2.service.NotificationService;
+import it.ai.polito.lab2.service.exceptions.NotificationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,11 +29,12 @@ public class NotificationController {
 
     @GetMapping("/reject/{token}")
     private String rejectToken(@PathVariable String token, Model model){
-        if(notificationService.reject(token))
+        try {
+            notificationService.reject(token);
             model.addAttribute("notificationResult", "Hai rifiutato con successo la partecipazione al gruppo");
-        else
+        }catch (NotificationException e){
             model.addAttribute("notificationResult", "Link inesistente o scaduto");
-
+        }
         return "notification";
     }
 }
