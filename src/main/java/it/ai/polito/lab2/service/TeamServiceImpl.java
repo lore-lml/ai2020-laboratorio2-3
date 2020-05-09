@@ -15,6 +15,7 @@ import it.ai.polito.lab2.service.exceptions.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     private NotificationService notificationService;
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public boolean addCourse(CourseDTO course) {
         if(courseRepository.findById(course.getName()).isPresent())
@@ -44,18 +46,21 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public Optional<CourseDTO> getCourse(String name) {
         Optional<Course> course = courseRepository.findById(name);
         return course.map(c -> mapper.map(c, CourseDTO.class));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream().map(c-> mapper.map(c, CourseDTO.class))
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public boolean addStudent(StudentDTO student) {
         if(studentRepository.findById(student.getId()).isPresent())
@@ -64,18 +69,21 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
         Optional<Student> student = studentRepository.findById(studentId);
         return student.map(s -> mapper.map(s, StudentDTO.class));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public List<StudentDTO> getAllStudents() {
         return studentRepository.findAll().stream().map(s-> mapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public List<StudentDTO> getEnrolledStudents(String courseName) {
         try {
@@ -86,6 +94,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public boolean addStudentToCourse(String studentId, String courseName) {
         Student s;
@@ -115,6 +124,7 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public void enableCourse(String courseName) {
         try{
@@ -125,6 +135,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public void disableCourse(String courseName) {
         try{
@@ -135,6 +146,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public List<Boolean> addAll(List<StudentDTO> students) {
         List<Boolean> res = new ArrayList<>();
@@ -142,6 +154,7 @@ public class TeamServiceImpl implements TeamService {
         return res;
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
         try {
@@ -153,6 +166,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public List<Boolean> addAndEnroll(Reader r, String courseName) {
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder(r)
@@ -196,6 +210,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @Override
     public List<CourseDTO> getCourses(String studentId) {
         try{
@@ -208,6 +223,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @Override
     public List<TeamDTO> getTeamsForStudent(String studentId) {
         try {
@@ -219,6 +235,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Override
     public List<StudentDTO> getMembers(Long TeamId) {
         try{
@@ -230,6 +247,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @Override
     public TeamDTO proposeTeam(String courseName, String teamName, List<String> memberIds) {
         //Controllo che non ci siano duplicati all'interno dei memberIds
@@ -286,6 +304,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
     @Override
     public List<TeamDTO> getTeamForCourse(String courseName) {
         try {
@@ -299,6 +318,7 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if(!courseRepository.findById(courseName).isPresent())
@@ -309,6 +329,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
 
@@ -330,6 +351,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Override
     public Optional<TeamDTO> getTeam(Long id) {
         Optional<Team> team = teamRepository.findById(id);
