@@ -14,7 +14,7 @@ public class Student {
     private static final String joinColumn = "student_id";
     private static final String inverseJoinCol = "course_name";
 
-    @Id
+    @Id //Starts with s + matricola
     private String id;
     private String name;
     private String firstName;

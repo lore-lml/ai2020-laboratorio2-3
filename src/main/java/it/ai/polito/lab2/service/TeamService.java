@@ -1,6 +1,7 @@
 package it.ai.polito.lab2.service;
 
 import it.ai.polito.lab2.dtos.CourseDTO;
+import it.ai.polito.lab2.dtos.ProfessorDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
 import it.ai.polito.lab2.dtos.TeamDTO;
 import it.ai.polito.lab2.entities.Team;
@@ -33,4 +34,5 @@ public interface TeamService {
     Optional<TeamDTO> getTeam(Long id);
     void setTeamStatus(Long teamId, Team.Status status);
     void evictTeam(Long teamId);
+    Optional<ProfessorDTO> getProfessor(String professorId);
 }

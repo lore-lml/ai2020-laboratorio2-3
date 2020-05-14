@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -16,7 +18,7 @@ import javax.validation.constraints.NotEmpty;
 public class StudentDTO extends RepresentationModel<StudentDTO> {
 
     @CsvBindByName
-    @NotEmpty
+    @Pattern(regexp = "s[0-9]+")
     private String id;
 
     @CsvBindByName

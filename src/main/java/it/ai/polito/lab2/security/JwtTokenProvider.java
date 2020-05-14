@@ -66,16 +66,22 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token, HttpServletRequest request) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            if (claims.getBody().getExpiration().before(new Date())) {
-                return false;
-            }
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new InvalidJwtAuthenticationException("Expired or invalid JWT token");
+        }catch (SignatureException ex){
+            request.setAttribute("message", "Invalid JWT Signature");
+        }catch (MalformedJwtException ex){
+            request.setAttribute("message", "Invalid JWT token");
+        }catch (ExpiredJwtException ex){
+            request.setAttribute("message", "Expired JWT token");
+        }catch (UnsupportedJwtException ex){
+            request.setAttribute("message", "Unsupported JWT exception");
+        }catch (IllegalArgumentException ex){
+            request.setAttribute("message", "Jwt claims string is empty");
         }
+        return false;
     }
 
     private Claims getAllClaimsFromToken(String token) {

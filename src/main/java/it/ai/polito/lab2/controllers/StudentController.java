@@ -3,13 +3,16 @@ package it.ai.polito.lab2.controllers;
 import it.ai.polito.lab2.dtos.CourseDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
 import it.ai.polito.lab2.dtos.TeamDTO;
+import it.ai.polito.lab2.service.ManagementService;
 import it.ai.polito.lab2.service.TeamService;
 import it.ai.polito.lab2.service.exceptions.TeamServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 public class StudentController {
     @Autowired
     private TeamService teamService;
+    @Autowired
+    private ManagementService managementService;
 
     @GetMapping({"", "/"})
     private List<StudentDTO> all(){
@@ -36,8 +41,9 @@ public class StudentController {
 
     @PostMapping({"","/"})
     @ResponseStatus(value = HttpStatus.CREATED)
-    private StudentDTO addStudent(@RequestBody StudentDTO student){
-        if(teamService.addStudent(student))
+    private StudentDTO addStudent(@RequestBody @Valid StudentDTO student){
+
+        if(managementService.createStudentUser(student))
             return ModelHelper.enrich(student);
 
         throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Student already exist: %s", student.getId()));

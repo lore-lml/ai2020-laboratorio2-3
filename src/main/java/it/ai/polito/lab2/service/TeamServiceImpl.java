@@ -3,12 +3,15 @@ package it.ai.polito.lab2.service;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.ai.polito.lab2.dtos.CourseDTO;
+import it.ai.polito.lab2.dtos.ProfessorDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
 import it.ai.polito.lab2.dtos.TeamDTO;
 import it.ai.polito.lab2.entities.Course;
+import it.ai.polito.lab2.entities.Professor;
 import it.ai.polito.lab2.entities.Student;
 import it.ai.polito.lab2.entities.Team;
 import it.ai.polito.lab2.repositories.CourseRepository;
+import it.ai.polito.lab2.repositories.ProfessorRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
 import it.ai.polito.lab2.repositories.TeamRepository;
 import it.ai.polito.lab2.service.exceptions.*;
@@ -33,11 +36,14 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     private TeamRepository teamRepository;
     @Autowired
-    private ModelMapper mapper;
+    private ProfessorRepository professorRepository;
     @Autowired
+    private ModelMapper mapper;
+    /*@Autowired
     private NotificationService notificationService;
+     */
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public boolean addCourse(CourseDTO course) {
         if(courseRepository.findById(course.getName()).isPresent())
@@ -46,21 +52,21 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public Optional<CourseDTO> getCourse(String name) {
         Optional<Course> course = courseRepository.findById(name);
         return course.map(c -> mapper.map(c, CourseDTO.class));
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ADMIN')")
     @Override
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream().map(c-> mapper.map(c, CourseDTO.class))
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ADMIN')")
     @Override
     public boolean addStudent(StudentDTO student) {
         if(studentRepository.findById(student.getId()).isPresent())
@@ -69,21 +75,21 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
         Optional<Student> student = studentRepository.findById(studentId);
         return student.map(s -> mapper.map(s, StudentDTO.class));
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public List<StudentDTO> getAllStudents() {
         return studentRepository.findAll().stream().map(s-> mapper.map(s, StudentDTO.class))
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public List<StudentDTO> getEnrolledStudents(String courseName) {
         try {
@@ -94,7 +100,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public boolean addStudentToCourse(String studentId, String courseName) {
         Student s;
@@ -124,7 +130,7 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public void enableCourse(String courseName) {
         try{
@@ -135,7 +141,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public void disableCourse(String courseName) {
         try{
@@ -146,7 +152,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public List<Boolean> addAll(List<StudentDTO> students) {
         List<Boolean> res = new ArrayList<>();
@@ -154,7 +160,7 @@ public class TeamServiceImpl implements TeamService {
         return res;
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
         try {
@@ -166,7 +172,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public List<Boolean> addAndEnroll(Reader r, String courseName) {
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder(r)
@@ -235,7 +241,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'STUDENT')")
     @Override
     public List<StudentDTO> getMembers(Long TeamId) {
         try{
@@ -304,7 +310,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'PROFESSOR')")
     @Override
     public List<TeamDTO> getTeamForCourse(String courseName) {
         try {
@@ -351,7 +357,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasRole('PROFESSOR')")
     @Override
     public Optional<TeamDTO> getTeam(Long id) {
         Optional<Team> team = teamRepository.findById(id);
@@ -361,5 +367,12 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void evictTeam(Long teamId) {
         teamRepository.deleteById(teamId);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public Optional<ProfessorDTO> getProfessor(String professorId) {
+        Optional<Professor> professor = professorRepository.findById(professorId);
+        return professor.map(p -> mapper.map(p, ProfessorDTO.class));
     }
 }

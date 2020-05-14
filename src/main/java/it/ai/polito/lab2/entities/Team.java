@@ -39,7 +39,7 @@ public class Team {
         if(this.course != null)
             this.course.getTeams().remove(this);
 
-        if(course != null)
+        if(course != null && !course.getTeams().contains(this))
             course.getTeams().add(this);
         
         this.course = course;

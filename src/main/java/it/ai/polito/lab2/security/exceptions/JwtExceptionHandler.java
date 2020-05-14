@@ -14,6 +14,10 @@ public class JwtExceptionHandler implements AuthenticationEntryPoint, Serializab
     private static final long serialVersionUID = -7858869558953243875L;
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid/Expired JWT: please create a valid one at /authenticate");
+        final String msg = (String) request.getAttribute("message");
+        if(msg != null)
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, msg);
+        else
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid/Expired JWT: please create a valid one at /authenticate");
     }
 }

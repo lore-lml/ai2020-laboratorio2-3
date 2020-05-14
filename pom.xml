@@ -9,10 +9,10 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
     <groupId>it.ai.polito</groupId>
-    <artifactId>lab2</artifactId>
+    <artifactId>lab3</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>lab2</name>
-    <description>Lab2 Applicazioni Internet</description>
+    <name>lab3</name>
+    <description>Lab3 Applicazioni Internet</description>
 
     <properties>
         <java.version>1.8</java.version>

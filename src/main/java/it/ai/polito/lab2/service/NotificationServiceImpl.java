@@ -92,7 +92,7 @@ public class NotificationServiceImpl implements NotificationService{
         for(String id : memberIds){
             Token token = createAndSaveToken(UUID.randomUUID().toString(), team.getId(), expiryDate);
             String message = buildMessage(token.getId(), team.getName(), id);
-            String email = String.format("s%s@studenti.polito.it", id);
+            String email = String.format("%s@studenti.polito.it", id); //The <s> is included in the id
             sendMessage(email, "Gruppo Applicazioni Internet", message);
         }
 }

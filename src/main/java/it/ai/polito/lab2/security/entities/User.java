@@ -22,16 +22,18 @@ import static java.util.stream.Collectors.toList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
-    @Id
-    @GeneratedValue
-    private Long id;
-    private String username;
-    private String password;
 
+    @Id
+    private String id;
+    @Column(nullable = false)
+    private String username;
+    @Column(nullable = false)
+    private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,4 +59,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
