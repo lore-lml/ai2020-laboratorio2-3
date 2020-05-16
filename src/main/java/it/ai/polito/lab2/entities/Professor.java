@@ -26,7 +26,7 @@ public class Professor {
     @OneToMany(mappedBy = "professor")
     private List<Course> courses = new ArrayList<>();
 
-    private void addCourse(Course course){
+    public void addCourse(Course course){
         if(course == null)
             return;
 
@@ -34,7 +34,7 @@ public class Professor {
         course.setProfessor(this);
     }
 
-    private void removeCourse(Course course){
+    public void removeCourse(Course course){
         if(course == null)
             return;
 

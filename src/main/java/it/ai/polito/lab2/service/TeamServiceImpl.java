@@ -14,6 +14,7 @@ import it.ai.polito.lab2.repositories.CourseRepository;
 import it.ai.polito.lab2.repositories.ProfessorRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
 import it.ai.polito.lab2.repositories.TeamRepository;
+import it.ai.polito.lab2.security.service.SecurityApiAuth;
 import it.ai.polito.lab2.service.exceptions.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,23 +40,36 @@ public class TeamServiceImpl implements TeamService {
     private ProfessorRepository professorRepository;
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private ManagementService managementService;
     /*@Autowired
     private NotificationService notificationService;
      */
 
     @PreAuthorize("hasRole('PROFESSOR')")
     @Override
-    public boolean addCourse(CourseDTO course) {
-        if(courseRepository.findById(course.getName()).isPresent())
+    public boolean addCourse(CourseDTO courseDTO) {
+        if(courseRepository.findById(courseDTO.getName()).isPresent())
             return false;
-        courseRepository.save(mapper.map(course, Course.class));
+        Course course = courseRepository.save(mapper.map(courseDTO, Course.class));
+
+        String professorId = SecurityApiAuth.getPrincipal().getId();
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new ProfessorNotFoundException(professorId));
+
+        //Se il corso è non esiste ed è stato creato con successo allora è impossibile che
+        //un professore abbia nella sua lista un corso con lo stesso nome o che il corso abbia già
+        //assegnato un professore
+        assert (professor.getCourses().contains(course) || course.getProfessor() != null);
+
+        course.setProfessor(professor);
         return true;
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasAnyRole('PROFESSOR, ADMIN') || @securityApiAuth.isEnrolled(#courseName)")
     @Override
-    public Optional<CourseDTO> getCourse(String name) {
-        Optional<Course> course = courseRepository.findById(name);
+    public Optional<CourseDTO> getCourse(String courseName) {
+        Optional<Course> course = courseRepository.findById(courseName);
         return course.map(c -> mapper.map(c, CourseDTO.class));
     }
 
@@ -71,11 +85,13 @@ public class TeamServiceImpl implements TeamService {
     public boolean addStudent(StudentDTO student) {
         if(studentRepository.findById(student.getId()).isPresent())
             return false;
+        if(!managementService.createStudentUser(student))
+            return false;
         studentRepository.save(mapper.map(student, Student.class));
         return true;
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ADMIN') || @securityApiAuth.isMe(#studentId)")
     @Override
     public Optional<StudentDTO> getStudent(String studentId) {
         Optional<Student> student = studentRepository.findById(studentId);
@@ -89,7 +105,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName)")
     @Override
     public List<StudentDTO> getEnrolledStudents(String courseName) {
         try {
@@ -100,7 +116,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName)")
     @Override
     public boolean addStudentToCourse(String studentId, String courseName) {
         Student s;
@@ -130,7 +146,7 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName)")
     @Override
     public void enableCourse(String courseName) {
         try{
@@ -141,7 +157,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName)")
     @Override
     public void disableCourse(String courseName) {
         try{
@@ -152,7 +168,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ADMIN')")
     @Override
     public List<Boolean> addAll(List<StudentDTO> students) {
         List<Boolean> res = new ArrayList<>();
@@ -160,7 +176,7 @@ public class TeamServiceImpl implements TeamService {
         return res;
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName)")
     @Override
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
         try {
@@ -172,7 +188,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName)")
     @Override
     public List<Boolean> addAndEnroll(Reader r, String courseName) {
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder(r)
@@ -216,7 +232,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     @Override
     public List<CourseDTO> getCourses(String studentId) {
         try{
@@ -229,7 +245,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     @Override
     public List<TeamDTO> getTeamsForStudent(String studentId) {
         try {
@@ -241,19 +257,19 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasAnyRole('PROFESSOR', 'STUDENT')")
+    @PreAuthorize("@securityApiAuth.isTeamBelongsToOwnedOrEnrolledCourses(#teamId)")
     @Override
-    public List<StudentDTO> getMembers(Long TeamId) {
+    public List<StudentDTO> getMembers(Long teamId) {
         try{
-            return teamRepository.findById(TeamId).get().getMembers()
+            return teamRepository.findById(teamId).get().getMembers()
                     .stream().map(m->mapper.map(m, StudentDTO.class))
                     .collect(Collectors.toList());
         }catch (NoSuchElementException e){
-            throw new TeamNotFoundException(TeamId);
+            throw new TeamNotFoundException(teamId);
         }
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("@securityApiAuth.isEnrolled(#courseName)")
     @Override
     public TeamDTO proposeTeam(String courseName, String teamName, List<String> memberIds) {
         //Controllo che non ci siano duplicati all'interno dei memberIds
@@ -310,7 +326,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasAnyRole('STUDENT', 'PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.isEnrolled(#courseName) || @securityApiAuth.ownCourse(#courseName)")
     @Override
     public List<TeamDTO> getTeamForCourse(String courseName) {
         try {
@@ -324,7 +340,7 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("@securityApiAuth.isEnrolled(#courseName)")
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if(!courseRepository.findById(courseName).isPresent())
@@ -335,7 +351,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("@securityApiAuth.isEnrolled(#courseName)")
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
 
@@ -369,10 +385,21 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.deleteById(teamId);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.isMe(#professorId)")
     @Override
     public Optional<ProfessorDTO> getProfessor(String professorId) {
         Optional<Professor> professor = professorRepository.findById(professorId);
         return professor.map(p -> mapper.map(p, ProfessorDTO.class));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public boolean addProfessor(ProfessorDTO professorDTO) {
+        if(professorRepository.findById(professorDTO.getId()).isPresent())
+            return false;
+        if(!managementService.createProfessorUser(professorDTO))
+            return false;
+        professorRepository.save(mapper.map(professorDTO, Professor.class));
+        return true;
     }
 }

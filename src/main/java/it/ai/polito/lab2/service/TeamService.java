@@ -35,4 +35,5 @@ public interface TeamService {
     void setTeamStatus(Long teamId, Team.Status status);
     void evictTeam(Long teamId);
     Optional<ProfessorDTO> getProfessor(String professorId);
+    public boolean addProfessor(ProfessorDTO professorDTO);
 }

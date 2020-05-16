@@ -1,7 +1,6 @@
 package it.ai.polito.lab2.security;
 
 import io.jsonwebtoken.*;
-import it.ai.polito.lab2.security.exceptions.InvalidJwtAuthenticationException;
 import it.ai.polito.lab2.security.service.JwtUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

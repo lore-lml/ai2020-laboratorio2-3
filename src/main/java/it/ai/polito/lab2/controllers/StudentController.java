@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 public class StudentController {
     @Autowired
     private TeamService teamService;
-    @Autowired
-    private ManagementService managementService;
 
     @GetMapping({"", "/"})
     private List<StudentDTO> all(){
@@ -43,7 +41,7 @@ public class StudentController {
     @ResponseStatus(value = HttpStatus.CREATED)
     private StudentDTO addStudent(@RequestBody @Valid StudentDTO student){
 
-        if(managementService.createStudentUser(student))
+        if(teamService.addStudent(student))
             return ModelHelper.enrich(student);
 
         throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Student already exist: %s", student.getId()));
