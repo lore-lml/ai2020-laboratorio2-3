@@ -11,7 +11,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfessorDTO {
-    @Pattern(regexp = "d[0-9]+")
+    @Pattern(regexp = "d[0-9]+", message = "The id must be in the following format d<id>")
     private String id;
     @NotEmpty
     private String name;

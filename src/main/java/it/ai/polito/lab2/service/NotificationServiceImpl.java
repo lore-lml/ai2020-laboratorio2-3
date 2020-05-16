@@ -17,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -49,7 +46,7 @@ public class NotificationServiceImpl implements NotificationService{
 
     @Override
     @Transactional
-    public boolean confirm(String token) {
+    public void confirm(String token) {
         Token t = tokenRepository.findById(token).orElseThrow(()-> new InvalidOrExpiredTokenException(token));
         Long teamId = t.getTeamId();
         //Se il token è scaduto non può confermare
@@ -60,8 +57,6 @@ public class NotificationServiceImpl implements NotificationService{
         if(tokenRepository.countTokenByTeamId(teamId) == 0) {
             teamService.setTeamStatus(teamId, Team.Status.ACTIVE);
         }
-
-        return false;
     }
 
     private void deleteTeamWithTokens(Long teamId){
@@ -122,8 +117,10 @@ public class NotificationServiceImpl implements NotificationService{
             return;
 
         Set<Long> teams = expiredTokens.stream().map(Token::getTeamId).collect(Collectors.toSet());
+        Set<Token> toEliminate = new HashSet<>(expiredTokens);
+        teams.forEach(t-> toEliminate.addAll(tokenRepository.findAllByTeamId(t)));
 
-        tokenRepository.deleteAll(expiredTokens);
+        tokenRepository.deleteAll(toEliminate);
         if(!teams.isEmpty())
             teams.forEach(teamService::evictTeam);
     }

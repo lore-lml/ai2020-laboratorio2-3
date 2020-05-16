@@ -1,7 +1,6 @@
 package it.ai.polito.lab2.security.service;
 
 import it.ai.polito.lab2.entities.Team;
-import it.ai.polito.lab2.repositories.CourseRepository;
 import it.ai.polito.lab2.repositories.ProfessorRepository;
 import it.ai.polito.lab2.repositories.StudentRepository;
 import it.ai.polito.lab2.repositories.TeamRepository;
@@ -12,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SecurityApiAuth {
     @Autowired
     private StudentRepository studentRepository;
-    @Autowired
-    private CourseRepository courseRepository;
     @Autowired
     private TeamRepository teamRepository;
     @Autowired
@@ -53,5 +52,12 @@ public class SecurityApiAuth {
 
     public boolean isMe(String id) {
         return getPrincipal().getId().equals(id);
+    }
+
+    public boolean amIbelongToMembers(List<String> memberIds) {
+        User principal = getPrincipal();
+        if(!principal.getRoles().contains(Roles.ROLE_STUDENT.toString()))
+            return false;
+        return memberIds.contains(principal.getId());
     }
 }

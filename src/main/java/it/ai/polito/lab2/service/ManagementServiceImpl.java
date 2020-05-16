@@ -31,8 +31,6 @@ public class ManagementServiceImpl implements ManagementService{
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private TeamService teamService;
-    @Autowired
     private NotificationService notificationService;
     @Autowired
     private PasswordEncoder encoder;
@@ -41,8 +39,6 @@ public class ManagementServiceImpl implements ManagementService{
     @PreAuthorize("hasAnyRole('ROLE_PROFESSOR', 'ROLE_ADMIN')")
     @Override
     public boolean createStudentUser(StudentDTO studentDTO) {
-        /*if(!teamService.addStudent(studentDTO))
-            return false;*/
 
         String username = String.format("%s@studenti.polito.it", studentDTO.getId());
         String userId = studentDTO.getId();
@@ -63,8 +59,6 @@ public class ManagementServiceImpl implements ManagementService{
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     public boolean createProfessorUser(ProfessorDTO professorDTO) {
-        /*if(!teamService.addProfessor(professorDTO))
-            return false;*/
 
         String username = String.format("%s@polito.it", professorDTO.getId());
         String userId = professorDTO.getId();

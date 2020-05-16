@@ -18,7 +18,7 @@ import javax.validation.constraints.Pattern;
 public class StudentDTO extends RepresentationModel<StudentDTO> {
 
     @CsvBindByName
-    @Pattern(regexp = "s[0-9]+")
+    @Pattern(regexp = "s[0-9]+", message = "The id must be in the following format s<id>")
     private String id;
 
     @CsvBindByName

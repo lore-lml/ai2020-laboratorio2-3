@@ -42,9 +42,6 @@ public class TeamServiceImpl implements TeamService {
     private ModelMapper mapper;
     @Autowired
     private ManagementService managementService;
-    /*@Autowired
-    private NotificationService notificationService;
-     */
 
     @PreAuthorize("hasRole('PROFESSOR')")
     @Override
@@ -73,7 +70,7 @@ public class TeamServiceImpl implements TeamService {
         return course.map(c -> mapper.map(c, CourseDTO.class));
     }
 
-    @PreAuthorize("hasAnyRole('PROFESSOR', 'ADMIN')")
+    //Permit to Every authenticated user
     @Override
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream().map(c-> mapper.map(c, CourseDTO.class))
@@ -98,7 +95,7 @@ public class TeamServiceImpl implements TeamService {
         return student.map(s -> mapper.map(s, StudentDTO.class));
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ADMIN')")
     @Override
     public List<StudentDTO> getAllStudents() {
         return studentRepository.findAll().stream().map(s-> mapper.map(s, StudentDTO.class))
@@ -232,7 +229,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.isMe(#studentId)")
     @Override
     public List<CourseDTO> getCourses(String studentId) {
         try{
@@ -245,7 +242,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.isMe(#studentId)")
     @Override
     public List<TeamDTO> getTeamsForStudent(String studentId) {
         try {
@@ -269,7 +266,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("@securityApiAuth.isEnrolled(#courseName)")
+    @PreAuthorize("@securityApiAuth.isEnrolled(#courseName) && @securityApiAuth.amIbelongToMembers(#memberIds)")
     @Override
     public TeamDTO proposeTeam(String courseName, String teamName, List<String> memberIds) {
         //Controllo che non ci siano duplicati all'interno dei memberIds

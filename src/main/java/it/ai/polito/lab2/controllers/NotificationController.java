@@ -19,11 +19,12 @@ public class NotificationController {
 
     @GetMapping("/confirm/{token}")
     private String confirmToken(@PathVariable String token, Model model){
-        if(notificationService.confirm(token))
+        try{
+            notificationService.confirm(token);
             model.addAttribute("notificationResult", "Hai confermato con successo la partecipazione al gruppo");
-        else
+        }catch (NotificationException e){
             model.addAttribute("notificationResult", "Link inesistente o scaduto");
-
+        }
         return "notification";
     }
 
