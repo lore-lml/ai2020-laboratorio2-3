@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, String> {
     @Query("SELECT c.name FROM Student s INNER JOIN s.courses c WHERE s.id=:studentId")
     List<String> getCourseNames(String studentId);
+    Optional<Student> findByIdIgnoreCase(String studentId);
 }
