@@ -254,7 +254,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("@securityApiAuth.isTeamBelongsToOwnedOrEnrolledCourses(#teamId)")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.doesTeamBelongsToOwnedOrEnrolledCourses(#teamId)")
     @Override
     public List<StudentDTO> getMembers(Long teamId) {
         try{
@@ -370,7 +370,7 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.doesTeamBelongsToOwnedOrEnrolledCourses(#id)")
     @Override
     public Optional<TeamDTO> getTeam(Long id) {
         Optional<Team> team = teamRepository.findById(id);

@@ -42,7 +42,7 @@ public class SecurityApiAuth {
         return studentRepository.getCourseNames(principal.getId()).contains(courseName);
     }
 
-    public boolean isTeamBelongsToOwnedOrEnrolledCourses(Long teamId){
+    public boolean doesTeamBelongsToOwnedOrEnrolledCourses(Long teamId){
         Team team = teamRepository.findById(teamId).orElseThrow(
                 () -> new TeamNotFoundException(teamId)
         );
