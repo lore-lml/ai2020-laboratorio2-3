@@ -351,7 +351,7 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
-    @PreAuthorize("@securityApiAuth.isEnrolled(#courseName)")
+    @PreAuthorize("@securityApiAuth.ownCourse(#courseName) ||@securityApiAuth.isEnrolled(#courseName)")
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if(!courseRepository.findByNameIgnoreCase(courseName).isPresent())
@@ -362,7 +362,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("@securityApiAuth.isEnrolled(#courseName)")
+    @PreAuthorize("@securityApiAuth.ownCourse(#courseName) ||@securityApiAuth.isEnrolled(#courseName)")
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
 
