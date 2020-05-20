@@ -3,13 +3,17 @@ package it.ai.polito.lab2.dtos;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
+
+import javax.validation.constraints.NotEmpty;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class CourseDTO {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+public class CourseDTO extends RepresentationModel<CourseDTO> {
 
     @EqualsAndHashCode.Include
+    @NotEmpty
     private String name;
 
     @EqualsAndHashCode.Include

@@ -1,7 +1,6 @@
 package it.ai.polito.lab2.entities;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ public class Student {
     private static final String joinColumn = "student_id";
     private static final String inverseJoinCol = "course_name";
 
-    @Id
+    @Id //Starts with s + matricola
     private String id;
     private String name;
     private String firstName;

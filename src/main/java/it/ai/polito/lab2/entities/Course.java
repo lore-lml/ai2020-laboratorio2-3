@@ -1,5 +1,6 @@
 package it.ai.polito.lab2.entities;
 
+import it.ai.polito.lab2.security.entities.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -25,6 +26,10 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private List<Team> teams = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "professor_id")
+    private Professor professor;
+
     public void addStudent(Student student){
         if(student == null)
             return;
@@ -47,5 +52,15 @@ public class Course {
 
         teams.remove(team);
         team.setCourse(null);
+    }
+
+    public void setProfessor(Professor professor) {
+        if(this.professor != null)
+            this.professor.getCourses().remove(this);
+
+        if(professor != null && !professor.getCourses().contains(this))
+            professor.getCourses().add(this);
+
+        this.professor = professor;
     }
 }

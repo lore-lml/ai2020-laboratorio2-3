@@ -1,35 +1,30 @@
 package it.ai.polito.lab2.dtos;
 
-import com.opencsv.bean.CsvBindByName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
 @NoArgsConstructor
-public class StudentDTO extends RepresentationModel<StudentDTO> {
-
-    @CsvBindByName
-    @Pattern(regexp = "s[0-9]+", message = "The id must be in the following format s<id>")
+@AllArgsConstructor
+public class ProfessorDTO extends RepresentationModel<ProfessorDTO> {
+    @Pattern(regexp = "d[0-9]+", message = "The id must be in the following format d<id>")
     private String id;
-
-    @CsvBindByName
     @NotEmpty
     private String name;
-
-    @CsvBindByName
     @NotEmpty
     private String firstName;
+    private List<String> courseNames = new ArrayList<>();
 
     public String getEmail(){
-        return String.format("%s@studenti.polito.it", id);
+        return String.format("%s@polito.it", id);
     }
 }

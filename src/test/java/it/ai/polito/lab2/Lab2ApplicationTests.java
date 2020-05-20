@@ -174,6 +174,13 @@ class Lab2ApplicationTests {
                 .filter(id-> !id.equals("prova")).collect(Collectors.toList());
 
         try{
+            List<String> tmp = new ArrayList<>(members);
+            tmp.remove(0);
+            tmp.add(tmp.get(0));
+            teamService.proposeTeam(courseName, "AI-Team", tmp);
+        }catch (DuplicateStudentException ignored){}
+
+        try{
             teamService.proposeTeam("fake", "AI-Team", members);
             fail();
         }catch (CourseNotFoundException ignored){}
