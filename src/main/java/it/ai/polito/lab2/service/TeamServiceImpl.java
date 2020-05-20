@@ -41,7 +41,7 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     private ModelMapper mapper;
     @Autowired
-    private ManagementService managementService;
+    private ManagementServiceImpl managementService;
 
     @PreAuthorize("hasRole('PROFESSOR')")
     @Override
@@ -63,7 +63,7 @@ public class TeamServiceImpl implements TeamService {
         return true;
     }
 
-    @PreAuthorize("hasAnyRole('PROFESSOR, ADMIN') || @securityApiAuth.isEnrolled(#courseName)")
+    //Permit All authenticated
     @Override
     public Optional<CourseDTO> getCourse(String courseName) {
         Optional<Course> course = courseRepository.findByNameIgnoreCase(courseName);
@@ -102,7 +102,7 @@ public class TeamServiceImpl implements TeamService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName)")
+    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.ownCourse(#courseName) || @securityApiAuth.isEnrolled(#courseName)")
     @Override
     public List<StudentDTO> getEnrolledStudents(String courseName) {
         try {
@@ -204,14 +204,25 @@ public class TeamServiceImpl implements TeamService {
             for(int i = 0; i<results.size(); i++) {
                 //Tali studenti sono quelli che una volta provati ad aggiungere all'interno del db hanno ricevuto
                 //come valore di ritorno falso dalla funzione addStudent();
-                if (!results.get(i))
-                    studentCheck.add(students.get(i));
+                if (!results.get(i)) {
+                    StudentDTO current = students.get(i);
+                    current.setFirstName(current.getFirstName().toLowerCase());
+                    current.setName(current.getName().toLowerCase());
+                    current.setId(current.getId().toLowerCase());
+                    studentCheck.add(current);
+                }
             }
 
             List<StudentDTO> expected = studentCheck.stream()
                     //Assumo che essendo stato fatto su studenti che hanno precedentemente ritornato falso
                     // sulla addStudent() esiste già quell'id sul db
-                    .map(s->getStudent(s.getId()).get())
+                    .map(s->{
+                        StudentDTO current = getStudent(s.getId()).get();
+                        current.setFirstName(current.getFirstName().toLowerCase());
+                        current.setName(current.getName().toLowerCase());
+                        current.setId(current.getId().toLowerCase());
+                        return current;
+                    })
                     .collect(Collectors.toList());
 
             //Se l'insieme dei dati degli studenti nel db è diverso da quelli forniti nel file
@@ -219,11 +230,12 @@ public class TeamServiceImpl implements TeamService {
             if(!new HashSet<>(studentCheck).equals(new HashSet<>(expected)))
                 throw new InconsistentStudentDataException();
 
-            return enrollAll(students.stream()
-                    .map(StudentDTO::getId)
-                    .collect(Collectors.toList()),
-                courseName
-            );
+            return enrollAll(
+                    students.stream()
+                            .map(StudentDTO::getId)
+                            .collect(Collectors.toList()),
+                    courseName);
+
         }catch (TeamServiceException e){
             throw e;
         }

@@ -20,11 +20,11 @@ public class Lab2Application {
     @Bean
     public CommandLineRunner runner(UserRepository repository, PasswordEncoder passwordEncoder){
         return args -> {
-            /*try {
+            try {
                 User admin = User.builder().id("a1").username("admin").password(passwordEncoder.encode("admin")).roles(Arrays.asList("ROLE_ADMIN")).build();
                 repository.saveAndFlush(admin);
                 System.out.println(repository.findAll());
-            }catch (Exception ignored){}*/
+            }catch (Exception ignored){}
         };
     }
 

@@ -73,15 +73,18 @@ def addProfessor(id, firstName, name, token):
 
 
 if __name__ == '__main__':
-    s1_account = {"username": "s1@studenti.polito.it", "password": "(F3w!y7ISA"}
-    d1_account = {"username": "d1@polito.it", "password": "+iUr50!BB2"}
-    d2_account = {"username": "d2@polito.it", "password": "#5T*0Rzg5p"}
-    admin_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaWF0IjoxNTg5NjQ1OTc3LCJleHAiOjE1ODk2NDk1Nzd9.fbu0-rr3TTZN81Zk3C1TCDOWT1sQcUpgMoFXUCiYJC8"
-    d1_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkMUBwb2xpdG8uaXQiLCJyb2xlcyI6WyJST0xFX1BST0ZFU1NPUiJdLCJpYXQiOjE1ODk2NDU5NzcsImV4cCI6MTU4OTY0OTU3N30.THfbm5Zq-qU-oR-JrQ7Yc8P-BM9MAb4rwd6kYEvT01Y"
-    s1_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzMUBzdHVkZW50aS5wb2xpdG8uaXQiLCJyb2xlcyI6WyJST0xFX1NUVURFTlQiXSwiaWF0IjoxNTg5NjQ1OTc3LCJleHAiOjE1ODk2NDk1Nzd9.00VjGSeOjdG1P2M_88zX0X0z1e7kIfi959O5skatywE"
-    d2_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkMkBwb2xpdG8uaXQiLCJyb2xlcyI6WyJST0xFX1BST0ZFU1NPUiJdLCJpYXQiOjE1ODk2NDYwODgsImV4cCI6MTU4OTY0OTY4OH0.PUmuh2mu6WIFJKgt3RV5fTHUxVFwN_suZ1v1BD1mljg"
+    s1_account = {"username": "s1@studenti.polito.it", "password": "oj3SOdn$)2"}
+    d1_account = {"username": "d1@polito.it", "password": "oj3SOdn$)2"}
+    d2_account = {"username": "d2@polito.it", "password": "QJ*2-W4ezo"}
+    admin_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaWF0IjoxNTg5OTkxODg1LCJleHAiOjE1ODk5OTU0ODV9.kxE8T6b_Vzh9KJfh-S-LPYSEqNIw1s7yNmlEb4xzbVM"
+    d1_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkMUBwb2xpdG8uaXQiLCJyb2xlcyI6WyJST0xFX1BST0ZFU1NPUiJdLCJpYXQiOjE1ODk5ODc5NzUsImV4cCI6MTU4OTk5MTU3NX0.ShmSxYEpZpeNXCBsk5xTIdMHsgpt7B1jRokcAp5Tnuw"
+    s1_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzMUBzdHVkZW50aS5wb2xpdG8uaXQiLCJyb2xlcyI6WyJST0xFX1NUVURFTlQiXSwiaWF0IjoxNTg5OTkwMjk1LCJleHAiOjE1ODk5OTM4OTV9.Xhe6OQK5gIH70r8SEtIu67DwLLNkKhUvtlchXbUL4O4"
+    d2_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkMkBwb2xpdG8uaXQiLCJyb2xlcyI6WyJST0xFX1BST0ZFU1NPUiJdLCJpYXQiOjE1ODk5ODc5NjEsImV4cCI6MTU4OTk5MTU2MX0.41qutEXW662ZaDrZXaE-Ee-AZTVn_D25NCE5lsfx7y8"
     s3_token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzM0BzdHVkZW50aS5wb2xpdG8uaXQiLCJyb2xlcyI6WyJST0xFX1NUVURFTlQiXSwiaWF0IjoxNTg5NjQ1ODI2LCJleHAiOjE1ODk2NDk0MjZ9.aQeVEUD_lB3sPAKVM_2MI_zuxGHoVR4O1x-b8po3z1w"
 
-    res = enableDisableCourse("Machine Learning", False, d2_token)
+    #res=authenticate(s1_account['username'], s1_account['password'])
+    #res = authenticate("admin", "admin")
+    res = addProfessor("d3", "Gianpiero", "Cabodi", admin_token)
+
     print(res.status_code)
     print(res.text)

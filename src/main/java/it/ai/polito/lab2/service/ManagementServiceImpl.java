@@ -2,14 +2,10 @@ package it.ai.polito.lab2.service;
 
 import it.ai.polito.lab2.dtos.ProfessorDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
-import it.ai.polito.lab2.entities.Course;
-import it.ai.polito.lab2.entities.Professor;
+import it.ai.polito.lab2.security.dtos.UserDTO;
 import it.ai.polito.lab2.security.entities.Roles;
 import it.ai.polito.lab2.security.entities.User;
 import it.ai.polito.lab2.security.repositories.UserRepository;
-import it.ai.polito.lab2.security.service.SecurityApiAuth;
-import it.ai.polito.lab2.service.exceptions.CourseAlreadyOwnedException;
-import it.ai.polito.lab2.service.exceptions.ProfessorNotFoundException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -34,13 +27,14 @@ public class ManagementServiceImpl implements ManagementService{
     private NotificationService notificationService;
     @Autowired
     private PasswordEncoder encoder;
-
+    @Autowired
+    private ModelMapper mapper;
 
     @PreAuthorize("hasAnyRole('ROLE_PROFESSOR', 'ROLE_ADMIN')")
     @Override
     public boolean createStudentUser(StudentDTO studentDTO) {
 
-        String username = String.format("%s@studenti.polito.it", studentDTO.getId());
+        String username = studentDTO.getEmail();
         String userId = studentDTO.getId();
         String password = generateCommonLangPassword();
 
@@ -60,7 +54,7 @@ public class ManagementServiceImpl implements ManagementService{
     @Override
     public boolean createProfessorUser(ProfessorDTO professorDTO) {
 
-        String username = String.format("%s@polito.it", professorDTO.getId());
+        String username = professorDTO.getEmail();
         String userId = professorDTO.getId();
         String password = generateCommonLangPassword();
 
@@ -97,18 +91,22 @@ public class ManagementServiceImpl implements ManagementService{
     }
 
     private void createUserAndSendMail(User user, String plainPassword, String firstName){
+        if(userRepository.findByUsernameIgnoreCase(user.getUsername()).isPresent())
+            throw new IllegalStateException();
+
         userRepository.save(user);
-        sendPassword(user, plainPassword, firstName);
+        UserDTO dto = mapper.map(user, UserDTO.class);
+        dto.setPassword(plainPassword);
+        sendPassword(dto, firstName);
     }
 
-    private void sendPassword(User user, String plainPassword, String firstName) {
+    private void sendPassword(UserDTO user, String firstName) {
         String subject = "[Applicazioni Internet] Teams";
         String body = String.format("Ciao %s, benvenuto su Teams!\n" +
                 "Il tuo account è stato creato con successo!\n" +
                 "Per accedere utilizza i dati forniti di seguito: \n" +
                 "Username: %s\n" +
-                "Passowrd: %s\n", firstName, user.getUsername(),plainPassword);
+                "Passowrd: %s\n", firstName, user.getUsername(),user.getPassword());
         notificationService.sendMessage(user.getUsername(), subject, body);
     }
-
 }

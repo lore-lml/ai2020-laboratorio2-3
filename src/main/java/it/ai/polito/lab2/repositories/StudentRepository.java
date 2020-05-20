@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, String> {
-    @Query("SELECT c.name FROM Student s INNER JOIN s.courses c WHERE s.id=:studentId")
+    @Query("SELECT c.name FROM Student s INNER JOIN s.courses c WHERE LOWER(s.id)=LOWER(:studentId)")
     List<String> getCourseNames(String studentId);
     Optional<Student> findByIdIgnoreCase(String studentId);
 }

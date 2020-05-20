@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SecurityApiAuth {
@@ -31,7 +32,10 @@ public class SecurityApiAuth {
         if(!principal.getRoles().contains(Roles.ROLE_PROFESSOR.toString()))
             return false;
 
-        return professorRepository.getCourseNames(principal.getId()).contains(courseName);
+        return professorRepository.getCourseNames(principal.getId())
+                .stream().map(String::toLowerCase)
+                .collect(Collectors.toSet())
+                .contains(courseName.toLowerCase());
     }
 
     public boolean isEnrolled(String courseName) {
@@ -39,7 +43,10 @@ public class SecurityApiAuth {
         if(!principal.getRoles().contains(Roles.ROLE_STUDENT.toString()))
             return false;
 
-        return studentRepository.getCourseNames(principal.getId()).contains(courseName);
+        return studentRepository.getCourseNames(principal.getId())
+                .stream().map(String::toLowerCase)
+                .collect(Collectors.toSet())
+                .contains(courseName.toLowerCase());
     }
 
     public boolean doesTeamBelongsToOwnedOrEnrolledCourses(Long teamId){
@@ -51,13 +58,17 @@ public class SecurityApiAuth {
     }
 
     public boolean isMe(String id) {
-        return getPrincipal().getId().equals(id);
+        return getPrincipal().getId()
+                .toLowerCase().equals(id.toLowerCase());
     }
 
     public boolean amIbelongToMembers(List<String> memberIds) {
         User principal = getPrincipal();
         if(!principal.getRoles().contains(Roles.ROLE_STUDENT.toString()))
             return false;
-        return memberIds.contains(principal.getId());
+        return memberIds
+                .stream().map(String::toLowerCase)
+                .collect(Collectors.toSet())
+                .contains(principal.getId().toLowerCase());
     }
 }

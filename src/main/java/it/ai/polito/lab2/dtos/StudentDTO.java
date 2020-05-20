@@ -28,4 +28,8 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @CsvBindByName
     @NotEmpty
     private String firstName;
+
+    public String getEmail(){
+        return String.format("%s@studenti.polito.it", id);
+    }
 }

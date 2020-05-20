@@ -17,4 +17,8 @@ public class ProfessorDTO {
     private String name;
     @NotEmpty
     private String firstName;
+
+    public String getEmail(){
+        return String.format("%s@polito.it", id);
+    }
 }

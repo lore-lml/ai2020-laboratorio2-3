@@ -19,9 +19,13 @@ public class ModelHelper {
         Link enrolled = linkTo(CourseController.class).slash(course.getName())
                 .slash("enrolled").withRel("enrolled");
         Link teams = linkTo(CourseController.class).slash(course.getName()).slash("teams").withRel("teams");
+        Link availableStudents = linkTo(CourseController.class).slash(course.getName()).slash("availableStudents").withRel("availableStudents");
+        Link studentsInTeam = linkTo(CourseController.class).slash(course.getName()).slash("studentsInTeam").withRel("studentsInTeam");
         course.add(self);
         course.add(enrolled);
         course.add(teams);
+        course.add(availableStudents);
+        course.add(studentsInTeam);
         return course;
     }
 

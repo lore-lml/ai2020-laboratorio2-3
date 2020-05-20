@@ -33,7 +33,7 @@ public class JwtController {
             String username = request.getUsername();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, request.getPassword()));
 
-            String token = jwtTokenProvider.createToken(username, repository.findByUsername(username)
+            String token = jwtTokenProvider.createToken(username, repository.findByUsernameIgnoreCase(username)
             .orElseThrow(()-> new UsernameNotFoundException("Username " + username + "not found"))
             .getRoles());
 
