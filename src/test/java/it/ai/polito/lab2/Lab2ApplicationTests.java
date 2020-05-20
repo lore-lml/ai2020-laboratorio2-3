@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("test")
 class Lab2ApplicationTests {
-
     @Autowired
     private TeamService teamService;
 
