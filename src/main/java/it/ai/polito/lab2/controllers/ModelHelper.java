@@ -1,6 +1,7 @@
 package it.ai.polito.lab2.controllers;
 
 import it.ai.polito.lab2.dtos.CourseDTO;
+import it.ai.polito.lab2.dtos.ProfessorDTO;
 import it.ai.polito.lab2.dtos.StudentDTO;
 import it.ai.polito.lab2.dtos.TeamDTO;
 import lombok.Data;
@@ -46,6 +47,12 @@ public class ModelHelper {
         team.add(self);
         team.add(members);
         return team;
+    }
+
+    public static ProfessorDTO enrich(ProfessorDTO professor){
+        Link self = linkTo(ProfessorController.class).slash(professor.getId()).withSelfRel();
+        professor.add(self);
+        return professor;
     }
 
     @Data

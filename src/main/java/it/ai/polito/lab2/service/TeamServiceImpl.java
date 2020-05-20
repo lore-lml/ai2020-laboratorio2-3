@@ -396,7 +396,7 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.deleteById(teamId);
     }
 
-    @PreAuthorize("hasRole('ADMIN') || @securityApiAuth.isMe(#professorId)")
+    //Permit all authenticated
     @Override
     public Optional<ProfessorDTO> getProfessor(String professorId) {
         Optional<Professor> professor = professorRepository.findByIdIgnoreCase(professorId);
@@ -412,5 +412,15 @@ public class TeamServiceImpl implements TeamService {
             return false;
         professorRepository.save(mapper.map(professorDTO, Professor.class));
         return true;
+    }
+
+    //Permit all authenticated
+    @Override
+    public List<ProfessorDTO> getProfessors() {
+        List<ProfessorDTO> professors = professorRepository.findAll().stream()
+                .map(p->mapper.map(p, ProfessorDTO.class))
+                .collect(Collectors.toList());
+        professors.forEach(p-> p.setCourseNames(professorRepository.getCourseNames(p.getId())));
+        return professors;
     }
 }
